@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
 
-  // Disable Turbopack to use webpack (required for next-pwa)
-  turbopack: undefined,
+  // Explicitly set empty turbopack config to use webpack (required for next-pwa)
+  turbopack: {},
 
   // Security headers for production
   async headers() {
