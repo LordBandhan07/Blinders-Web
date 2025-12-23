@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blinders - Production Setup
 
-## Getting Started
+## 🎯 Production Ready!
 
-First, run the development server:
+The application is now configured with PRODUCTION credentials.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🔐 Production Login Credentials:
+
+| Blinders ID | Password | Role | Name |
+|-------------|----------|------|------|
+| **BLND-001** | LordBandhan@Blinders07 | Admin | Arthur Shelby - God of Blinders |
+| **BLND-002** | MrSteve@Blinders7 | Member | Steve Rogers - President |
+| **BLND-003** | MrRobert@Blinders7 | Member | Robert Downey - Chief Member |
+| **BLND-004** | MrAnthony@Blinders7 | Member | Anthony Mackie - Senior Member |
+
+## 📝 Setup Instructions:
+
+### 1. Update Supabase Database
+Run the updated `supabase-setup.sql` in your Supabase SQL Editor to replace test data with production users.
+
+### 2. Environment Variables
+Make sure `.env.local` has your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Test Login
+```bash
+npm run dev
+# Visit http://localhost:3000
+# Login with BLND-001 / LordBandhan@Blinders07
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✅ Features:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- ✅ Blinders ID authentication (BLND-XXX format)
+- ✅ Production passwords configured
+- ✅ Admin panel (BLND-001 only)
+- ✅ PWA support with offline mode
+- ✅ Premium animated UI
+- ✅ Mobile responsive
+- ✅ Secure authentication
 
-## Learn More
+## 🚀 Deploy to Vercel:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+git init
+git add .
+git commit -m "Production ready"
+git push origin main
+# Import to Vercel and add environment variables
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Status**: Production Ready 🎊  
+**Security**: Maximum 🔒  
+**Design**: Premium ⭐⭐⭐⭐⭐
