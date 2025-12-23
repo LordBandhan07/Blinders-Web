@@ -96,7 +96,6 @@ export default function LoginPage() {
                                 left: `${Math.random() * 100}%`,
                                 top: `${Math.random() * 100}%`,
                                 background: 'radial-gradient(circle, rgba(255, 193, 7, 0.1), transparent)',
-                                filter: 'blur(40px)',
                             }}
                             animate={{
                                 x: [0, Math.random() * 100 - 50],
@@ -165,12 +164,10 @@ export default function LoginPage() {
                         >
                             <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 relative">
                                 <img
-                                    src="/blinders-logo.svg"
+                                    src="/blinders-logo-1.png"
                                     alt="Blinders Logo"
                                     className="w-full h-full object-contain"
                                     style={{
-                                        filter: 'brightness(0) saturate(100%) invert(77%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)',
-                                        WebkitFilter: 'brightness(0) saturate(100%) invert(77%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)'
                                     }}
                                 />
                             </div>
