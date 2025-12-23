@@ -140,7 +140,7 @@ export default function LoginPage() {
                 </div>
             )}
 
-            {/* Main Content - BETTER PADDING */}
+            {/* Main Content */}
             <div className="relative z-10 flex min-h-screen items-center justify-center p-8 sm:p-10 md:p-12">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -148,40 +148,35 @@ export default function LoginPage() {
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                     className="w-full max-w-lg"
                 >
-                    {/* Logo Section - BETTER SPACING */}
+                    {/* Logo Section */}
                     <motion.div
                         className="text-center mb-12"
                         initial={{ opacity: 0, y: -30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
                     >
-                        {/* Logo - BIG & YELLOW */}
+                        {/* Logo - MOBILE FRIENDLY */}
                         <motion.div
                             className="flex items-center justify-center mb-8"
                             animate={{
-                                filter: [
-                                    'drop-shadow(0 0 30px rgba(255, 193, 7, 0.6))',
-                                    'drop-shadow(0 0 50px rgba(255, 193, 7, 0.8))',
-                                    'drop-shadow(0 0 30px rgba(255, 193, 7, 0.6))',
-                                ],
+                                scale: [1, 1.05, 1],
                             }}
                             transition={{ duration: 3, repeat: Infinity }}
                         >
-                            <div className="relative w-36 h-36 sm:w-44 sm:h-44">
-                                <Image
+                            <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 relative">
+                                <img
                                     src="/blinders-logo.svg"
                                     alt="Blinders Logo"
-                                    fill
-                                    className="object-contain"
+                                    className="w-full h-full object-contain"
                                     style={{
-                                        filter: 'brightness(0) saturate(100%) invert(77%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)'
+                                        filter: 'brightness(0) saturate(100%) invert(77%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)',
+                                        WebkitFilter: 'brightness(0) saturate(100%) invert(77%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)'
                                     }}
-                                    priority
                                 />
                             </div>
                         </motion.div>
 
-                        {/* Title - BIG */}
+                        {/* Title */}
                         <motion.h1
                             className="text-5xl sm:text-6xl md:text-7xl font-black mb-4"
                             style={{
@@ -212,7 +207,7 @@ export default function LoginPage() {
                         </motion.div>
                     </motion.div>
 
-                    {/* Login Card - BETTER PADDING */}
+                    {/* Login Card */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -229,7 +224,7 @@ export default function LoginPage() {
                             </div>
 
                             <form onSubmit={handleLogin} className="space-y-6">
-                                {/* Email Input - BIGGER */}
+                                {/* Email Input */}
                                 <motion.div
                                     className="space-y-3"
                                     whileHover={{ scale: 1.01 }}
@@ -259,7 +254,7 @@ export default function LoginPage() {
                                     </div>
                                 </motion.div>
 
-                                {/* Password Input - BIGGER */}
+                                {/* Password Input */}
                                 <motion.div
                                     className="space-y-3"
                                     whileHover={{ scale: 1.01 }}
@@ -296,7 +291,7 @@ export default function LoginPage() {
                                     </div>
                                 </motion.div>
 
-                                {/* Submit Button - BIGGER */}
+                                {/* Submit Button */}
                                 <motion.div
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
@@ -337,7 +332,6 @@ export default function LoginPage() {
                                             )}
                                         </AnimatePresence>
 
-                                        {/* Button Glow */}
                                         <motion.div
                                             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                                             initial={{ x: '-100%' }}
