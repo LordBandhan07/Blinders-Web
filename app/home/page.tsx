@@ -35,15 +35,18 @@ export default function HomePage() {
     return (
         <>
             <PWAInstallPrompt />
-            <div className="h-full overflow-y-auto p-6 sm:p-8 md:p-10">
-                <div className="max-w-6xl mx-auto space-y-8">
-                    {/* Header - Better Spacing */}
+            <div className="h-full overflow-y-auto" style={{ padding: '15px' }}>
+                <div className="max-w-6xl mx-auto">
+                    {/* Header - Precise Spacing */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3"
+                        style={{ marginBottom: '20px' }}
                     >
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#FFC107] to-[#FFD54F] bg-clip-text text-transparent">
+                        <h1
+                            className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#FFC107] to-[#FFD54F] bg-clip-text text-transparent"
+                            style={{ marginBottom: '10px' }}
+                        >
                             Welcome to Blinders
                         </h1>
                         <p className="text-gray-400 text-base sm:text-lg">
@@ -51,8 +54,11 @@ export default function HomePage() {
                         </p>
                     </motion.div>
 
-                    {/* Feature Cards - Better Gaps */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Feature Cards - Precise Gaps */}
+                    <div
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                        style={{ marginBottom: '20px' }}
+                    >
                         {features.map((feature, index) => {
                             const Icon = feature.icon;
                             return (
@@ -63,20 +69,31 @@ export default function HomePage() {
                                     transition={{ delay: index * 0.1 }}
                                 >
                                     <Card className="h-full hover:border-[#FFC107] transition-all cursor-pointer group bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
-                                        <CardHeader className="space-y-4">
-                                            <div className="w-14 h-14 rounded-lg bg-[#FFC107] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <CardHeader style={{ padding: '20px' }}>
+                                            <div
+                                                className="w-14 h-14 rounded-lg bg-[#FFC107] flex items-center justify-center group-hover:scale-110 transition-transform"
+                                                style={{ marginBottom: '15px' }}
+                                            >
                                                 <Icon className="w-7 h-7 text-black" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <CardTitle className="text-lg text-white">{feature.title}</CardTitle>
-                                                <CardDescription className="text-sm text-gray-400 leading-relaxed">{feature.description}</CardDescription>
+                                            <div>
+                                                <CardTitle
+                                                    className="text-lg text-white"
+                                                    style={{ marginBottom: '7px' }}
+                                                >
+                                                    {feature.title}
+                                                </CardTitle>
+                                                <CardDescription className="text-sm text-gray-400 leading-relaxed">
+                                                    {feature.description}
+                                                </CardDescription>
                                             </div>
                                         </CardHeader>
-                                        <CardContent>
+                                        <CardContent style={{ padding: '0 20px 20px 20px' }}>
                                             <Button
                                                 variant="ghost"
                                                 className="w-full justify-between group-hover:text-[#FFC107] text-base h-11"
                                                 onClick={feature.action}
+                                                style={{ marginTop: '7px' }}
                                             >
                                                 Access
                                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -88,20 +105,28 @@ export default function HomePage() {
                         })}
                     </div>
 
-                    {/* Status Banner - Better Padding */}
+                    {/* Status Banner - Precise Padding */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
+                        style={{ marginBottom: '20px' }}
                     >
                         <Card className="bg-gradient-to-r from-[rgba(255,193,7,0.1)] to-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.3)]">
-                            <CardContent className="p-6">
+                            <CardContent style={{ padding: '20px' }}>
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
                                         <div className="w-3 h-3 rounded-full bg-[#FFC107] animate-pulse flex-shrink-0" />
                                         <div>
-                                            <p className="font-semibold text-base text-white">System Status: Operational</p>
-                                            <p className="text-sm text-gray-400 mt-1">All channels are secure and encrypted</p>
+                                            <p
+                                                className="font-semibold text-base text-white"
+                                                style={{ marginBottom: '6px' }}
+                                            >
+                                                System Status: Operational
+                                            </p>
+                                            <p className="text-sm text-gray-400">
+                                                All channels are secure and encrypted
+                                            </p>
                                         </div>
                                     </div>
                                     <Shield className="w-8 h-8 text-[#FFC107]" />
@@ -110,7 +135,7 @@ export default function HomePage() {
                         </Card>
                     </motion.div>
 
-                    {/* Quick Stats - Better Spacing */}
+                    {/* Quick Stats - Precise Spacing */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -118,20 +143,44 @@ export default function HomePage() {
                         className="grid grid-cols-3 gap-4 sm:gap-6"
                     >
                         <Card className="bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
-                            <CardContent className="p-6 text-center space-y-2">
-                                <p className="text-3xl sm:text-4xl font-bold text-[#FFC107]">3</p>
+                            <CardContent
+                                className="text-center"
+                                style={{ padding: '20px' }}
+                            >
+                                <p
+                                    className="text-3xl sm:text-4xl font-bold text-[#FFC107]"
+                                    style={{ marginBottom: '7px' }}
+                                >
+                                    3
+                                </p>
                                 <p className="text-xs sm:text-sm text-gray-400">Active Channels</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
-                            <CardContent className="p-6 text-center space-y-2">
-                                <p className="text-3xl sm:text-4xl font-bold text-[#FFC107]">24/7</p>
+                            <CardContent
+                                className="text-center"
+                                style={{ padding: '20px' }}
+                            >
+                                <p
+                                    className="text-3xl sm:text-4xl font-bold text-[#FFC107]"
+                                    style={{ marginBottom: '7px' }}
+                                >
+                                    24/7
+                                </p>
                                 <p className="text-xs sm:text-sm text-gray-400">Secure Access</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
-                            <CardContent className="p-6 text-center space-y-2">
-                                <p className="text-3xl sm:text-4xl font-bold text-[#FFC107]">100%</p>
+                            <CardContent
+                                className="text-center"
+                                style={{ padding: '20px' }}
+                            >
+                                <p
+                                    className="text-3xl sm:text-4xl font-bold text-[#FFC107]"
+                                    style={{ marginBottom: '7px' }}
+                                >
+                                    100%
+                                </p>
                                 <p className="text-xs sm:text-sm text-gray-400">Encrypted</p>
                             </CardContent>
                         </Card>
