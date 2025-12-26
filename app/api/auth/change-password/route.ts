@@ -1,56 +1,68 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { hashPassword, validatePassword } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase-server';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     try {
         const { newPassword } = await request.json();
 
-        // Validate new password
-        const validation = validatePassword(newPassword);
-        if (!validation.valid) {
+        if (!newPassword || newPassword.length < 6) {
             return NextResponse.json(
-                { error: validation.message },
+                { error: 'Password must be at least 6 characters' },
                 { status: 400 }
             );
         }
 
-        // Get user ID from session
-        const cookieStore = await cookies();
-        const userId = cookieStore.get('blinders_session')?.value;
-
-        if (!userId) {
+        // Get the current user from the request
+        const authHeader = request.headers.get('authorization');
+        if (!authHeader) {
             return NextResponse.json(
-                { error: 'Not authenticated' },
+                { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        // Hash new password
-        const newPasswordHash = await hashPassword(newPassword);
+        const token = authHeader.replace('Bearer ', '');
 
-        // Update password in database
-        const { error } = await supabase
-            .from('blinders_users')
-            .update({
-                password_hash: newPasswordHash,
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', userId);
+        // Verify the token and get user
+        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
 
-        if (error) {
-            throw error;
+        if (userError || !user) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
         }
 
-        return NextResponse.json({
-            success: true,
-            message: 'Password updated successfully'
-        });
+        // Update the user's password
+        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+            user.id,
+            { password: newPassword }
+        );
+
+        if (updateError) {
+            console.error('Password update error:', updateError);
+            return NextResponse.json(
+                { error: 'Failed to update password' },
+                { status: 500 }
+            );
+        }
+
+        // Save password to profiles table for admin visibility
+        const { error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .update({ latest_password: newPassword })
+            .eq('id', user.id);
+
+        if (profileError) {
+            console.error('Profile password update error:', profileError);
+            // Don't fail the request, password was already changed
+        }
+
+        return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Password change error:', error);
+        console.error('Change password API error:', error);
         return NextResponse.json(
-            { error: 'Failed to update password' },
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }

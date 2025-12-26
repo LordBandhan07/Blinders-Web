@@ -1,9 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { verifyPassword } from '@/lib/auth';
-import { cookies } from 'next/headers';
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
     try {
         const { email, password } = await request.json();
 
@@ -14,56 +12,72 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Find user by email
-        const { data: user, error } = await supabase
-            .from('blinders_users')
+        // Sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            console.error('Login error:', error);
+            return NextResponse.json(
+                { error: 'Invalid credentials' },
+                { status: 401 }
+            );
+        }
+
+        if (!data.user || !data.session) {
+            return NextResponse.json(
+                { error: 'Authentication failed' },
+                { status: 401 }
+            );
+        }
+
+        // Get user profile
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
             .select('*')
-            .eq('email', email.toLowerCase())
+            .eq('id', data.user.id)
             .single();
 
-        if (error || !user) {
+        if (profileError) {
+            console.error('Profile fetch error:', profileError);
             return NextResponse.json(
-                { error: 'Invalid email or password' },
-                { status: 401 }
+                { error: 'Failed to fetch user profile' },
+                { status: 500 }
             );
         }
 
-        // Check if user is active
-        if (!user.is_active) {
-            return NextResponse.json(
-                { error: 'Account is deactivated. Contact the God of Blinders.' },
-                { status: 403 }
-            );
-        }
+        // Update online status
+        await supabase
+            .from('profiles')
+            .update({ is_online: true, last_seen: new Date().toISOString() })
+            .eq('id', data.user.id);
 
-        // Verify password
-        const isValidPassword = await verifyPassword(password, user.password_hash);
+        // Create response with session cookie
+        const response = NextResponse.json({
+            success: true,
+            user: {
+                id: data.user.id,
+                email: data.user.email,
+                display_name: profile.display_name,
+                role: profile.role,
+            },
+            session: data.session,
+        });
 
-        if (!isValidPassword) {
-            return NextResponse.json(
-                { error: 'Invalid email or password' },
-                { status: 401 }
-            );
-        }
-
-        // Create session
-        const cookieStore = await cookies();
-        cookieStore.set('blinders_session', user.id, {
+        // Set session cookie
+        response.cookies.set('supabase-auth-token', data.session.access_token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 60 * 60 * 24 * 7, // 7 days
+            path: '/',
         });
 
-        // Return user data
-        const { password_hash, ...userData } = user;
-
-        return NextResponse.json({
-            success: true,
-            user: userData,
-        });
+        return response;
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login API error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

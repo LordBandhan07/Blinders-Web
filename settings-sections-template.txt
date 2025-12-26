@@ -1,0 +1,105 @@
+// Profile Info Section - Add after line 293
+                {/* Profile Info Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ marginBottom: '30px' }}
+                >
+                    <Card className="bg-[#0a0a0a] border-[rgba(255,193,7,0.3)]" style={{ padding: '25px' }}>
+                        <h2 className="text-2xl font-bold text-white" style={{ marginBottom: '20px' }}>
+                            Profile Information
+                        </h2>
+                        
+                        <div className="flex items-center" style={{ gap: '20px' }}>
+                            <Avatar className="w-20 h-20 border-2 border-[#FFC107]">
+                                {userProfile?.profile_photo_url ? (
+                                    <img 
+                                        src={userProfile.profile_photo_url} 
+                                        alt={userProfile.display_name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <AvatarFallback className="bg-[#FFC107] text-black font-bold text-2xl">
+                                        {userProfile?.display_name?.substring(0, 2).toUpperCase() || 'BA'}
+                                    </AvatarFallback>
+                                )}
+                            </Avatar>
+                            <div className="flex-1">
+                                <h3 className="text-white font-bold text-xl" style={{ marginBottom: '8px' }}>
+                                    {userProfile?.display_name || 'Loading...'}
+                                </h3>
+                                <p className="text-gray-400 text-sm" style={{ marginBottom: '8px' }}>
+                                    {userProfile?.email || 'Loading...'}
+                                </p>
+                                <div
+                                    className={`inline-flex items-center rounded-lg font-semibold text-xs ${
+                                        userProfile?.role === 'admin'
+                                            ? 'bg-[#FFC107] text-black'
+                                            : 'bg-[rgba(255,193,7,0.1)] text-[#FFC107] border border-[rgba(255,193,7,0.3)]'
+                                    }`}
+                                    style={{ padding: '6px 12px', gap: '6px' }}
+                                >
+                                    <Shield size={12} />
+                                    <span>
+                                        {userProfile?.role === 'admin' ? 'God of Blinders' :
+                                         userProfile?.role === 'president' ? 'President' :
+                                         userProfile?.role === 'chief_member' ? 'Chief Member' :
+                                         userProfile?.role === 'senior_member' ? 'Senior Member' : 'Agent'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </motion.div>
+
+// Admin Password Section - Add before change password section
+                {/* Admin Password Tracking Section */}
+                {userProfile?.role === 'admin' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        style={{ marginBottom: '30px' }}
+                    >
+                        <Card className="bg-[#0a0a0a] border-[rgba(255,193,7,0.3)]" style={{ padding: '25px' }}>
+                            <h2 className="text-2xl font-bold text-white" style={{ marginBottom: '20px' }}>
+                                Agent's Latest Passwords
+                            </h2>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-[rgba(255,193,7,0.2)]">
+                                            <th className="text-left text-[#FFC107] font-semibold" style={{ padding: '12px' }}>Name</th>
+                                            <th className="text-left text-[#FFC107] font-semibold" style={{ padding: '12px' }}>Email</th>
+                                            <th className="text-left text-[#FFC107] font-semibold" style={{ padding: '12px' }}>Role</th>
+                                            <th className="text-left text-[#FFC107] font-semibold" style={{ padding: '12px' }}>Latest Password</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {userPasswords.map((user) => (
+                                            <tr key={user.id} className="border-b border-[rgba(255,193,7,0.1)]">
+                                                <td className="text-white" style={{ padding: '12px' }}>{user.display_name}</td>
+                                                <td className="text-gray-400 text-sm" style={{ padding: '12px' }}>{user.email}</td>
+                                                <td className="text-gray-400 text-sm" style={{ padding: '12px' }}>
+                                                    {user.role === 'president' ? 'President' :
+                                                     user.role === 'chief_member' ? 'Chief Member' :
+                                                     user.role === 'senior_member' ? 'Senior Member' : 'Agent'}
+                                                </td>
+                                                <td className="text-[#FFC107] font-mono" style={{ padding: '12px' }}>
+                                                    {user.latest_password || 'Not set yet'}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {userPasswords.length === 0 && (
+                                    <p className="text-gray-400 text-center" style={{ padding: '20px' }}>
+                                        No user passwords available yet.
+                                    </p>
+                                )}
+                            </div>
+                        </Card>
+                    </motion.div>
+                )}

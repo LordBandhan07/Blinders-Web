@@ -41,7 +41,7 @@ export default function HomePage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        style={{ marginBottom: '20px' }}
+                        style={{ marginBottom: '20px', marginTop: '50px', textAlign: 'center' }}
                     >
                         <h1
                             className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#FFC107] to-[#FFD54F] bg-clip-text text-transparent"
@@ -71,7 +71,7 @@ export default function HomePage() {
                                     <Card className="h-full hover:border-[#FFC107] transition-all cursor-pointer group bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
                                         <CardHeader style={{ padding: '20px' }}>
                                             <div
-                                                className="w-14 h-14 rounded-lg bg-[#FFC107] flex items-center justify-center group-hover:scale-110 transition-transform"
+                                                className="w-14 h-14 rounded-2xl bg-[#FFC107] flex items-center justify-center group-hover:scale-110 transition-transform"
                                                 style={{ marginBottom: '15px' }}
                                             >
                                                 <Icon className="w-7 h-7 text-black" />
@@ -91,12 +91,12 @@ export default function HomePage() {
                                         <CardContent style={{ padding: '0 20px 20px 20px' }}>
                                             <Button
                                                 variant="ghost"
-                                                className="w-full justify-between group-hover:text-[#FFC107] text-base h-11"
+                                                className="w-full justify-between text-base h-11 bg-[rgba(255,193,7,0.15)] hover:bg-[rgba(255,193,7,0.25)] text-[#FFC107] hover:text-[#FFD54F]"
                                                 onClick={feature.action}
-                                                style={{ marginTop: '7px' }}
+                                                style={{ marginTop: '3px' }}
                                             >
-                                                Access
-                                                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                <span style={{ marginLeft: '10px' }}>Access</span>
+                                                <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" style={{ marginRight: '10px' }} />
                                             </Button>
                                         </CardContent>
                                     </Card>
@@ -116,20 +116,17 @@ export default function HomePage() {
                             <CardContent style={{ padding: '20px' }}>
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-3 h-3 rounded-full bg-[#FFC107] animate-pulse flex-shrink-0" />
-                                        <div>
-                                            <p
-                                                className="font-semibold text-base text-white"
-                                                style={{ marginBottom: '6px' }}
-                                            >
-                                                System Status: Operational
-                                            </p>
-                                            <p className="text-sm text-gray-400">
-                                                All channels are secure and encrypted
-                                            </p>
-                                        </div>
+                                        <div className="w-8 h-8 text-[#FFC107] w-3 h-3 rounded-full bg-[#FFC107] animate-pulse flex-shrink-0" />
+                                        <p
+                                            className="font-semibold text-base text-white"
+                                            style={{ marginBottom: '6px' }}
+                                        >
+                                            System Status: Operational
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            All channels are secure and encrypted
+                                        </p>
                                     </div>
-                                    <Shield className="w-8 h-8 text-[#FFC107]" />
                                 </div>
                             </CardContent>
                         </Card>
@@ -141,6 +138,7 @@ export default function HomePage() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.5 }}
                         className="grid grid-cols-3 gap-4 sm:gap-6"
+                        style={{ marginBottom: '20px' }}
                     >
                         <Card className="bg-[rgba(255,193,7,0.05)] border-[rgba(255,193,7,0.2)]">
                             <CardContent
@@ -186,7 +184,7 @@ export default function HomePage() {
                         </Card>
                     </motion.div>
                 </div>
-            </div>
+            </div >
         </>
     );
 }
