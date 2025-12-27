@@ -84,6 +84,16 @@ export async function POST(request: Request) {
             path: '/',
         });
 
+        // Set device ID cookie (permanent) to track this device
+        const deviceId = request.headers.get('user-agent') || 'unknown';
+        response.cookies.set('blinders-device-id', Buffer.from(deviceId).toString('base64').slice(0, 32), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
+            path: '/',
+        });
+
         return response;
     } catch (error) {
         console.error('Login API error:', error);
