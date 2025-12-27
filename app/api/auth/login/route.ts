@@ -75,6 +75,15 @@ export async function POST(request: Request) {
             path: '/',
         });
 
+        // Set passkey unlocked cookie (24 hours)
+        response.cookies.set('passkey-unlocked', 'true', {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24, // 24 hours
+            path: '/',
+        });
+
         return response;
     } catch (error) {
         console.error('Login API error:', error);

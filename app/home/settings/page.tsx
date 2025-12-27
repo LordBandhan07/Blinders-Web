@@ -163,64 +163,51 @@ export default function SettingsPage() {
         setIsLoading(true);
 
         try {
-            // Import supabase client
-            const { supabase } = await import('@/lib/supabase');
+            console.log('🔄 Sending password change request...');
 
-            console.log('🔄 Starting password update...');
-
-            // Update password using Supabase Auth
-            const { data: updateData, error: updateError } = await supabase.auth.updateUser({
-                password: newPassword
-            });
-
-            if (updateError) {
-                console.error('❌ Supabase Auth error:', updateError);
-                throw new Error(updateError.message);
-            }
-
-            console.log('✅ Supabase Auth password updated!', updateData);
-
-            // Get current user ID
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (user) {
-                // Update profiles table for admin visibility
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .update({ latest_password: newPassword })
-                    .eq('id', user.id);
-
-                if (profileError) {
-                    console.error('⚠️ Profile update error:', profileError);
-                    // Don't fail - password is already changed
-                } else {
-                    console.log('✅ Profile password saved for admin');
-                }
-            }
-
-            // Success!
-            toast.success('✅ Password updated successfully! You can now login with your new password.', {
-                style: {
-                    background: '#000000',
-                    color: '#FFC107',
-                    border: '1px solid #FFC107',
+            const response = await fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-                duration: 6000,
+                body: JSON.stringify({ newPassword }),
             });
 
-            setNewPassword('');
-            setConfirmPassword('');
-            setPasswordsMatch(null);
+            const data = await response.json();
+            console.log('📡 API Response:', response.status, data);
 
+            if (response.ok) {
+                console.log('✅ Password changed successfully!');
+                toast.success('✅ Password updated successfully! You can now login with your new password.', {
+                    style: {
+                        background: '#000000',
+                        color: '#FFC107',
+                        border: '1px solid #FFC107',
+                    },
+                    duration: 6000,
+                });
+
+                setNewPassword('');
+                setConfirmPassword('');
+                setPasswordsMatch(null);
+            } else {
+                console.error('❌ Password change failed:', data.error);
+                toast.error(data.error || 'Failed to update password', {
+                    style: {
+                        background: '#000000',
+                        color: '#ffffff',
+                        border: '1px solid #FFC107',
+                    },
+                });
+            }
         } catch (error: any) {
-            console.error('❌ Password change failed:', error);
-            toast.error(error.message || 'Failed to update password. Please try again.', {
+            console.error('❌ Request error:', error);
+            toast.error('Connection error. Please try again.', {
                 style: {
                     background: '#000000',
                     color: '#ffffff',
                     border: '1px solid #FFC107',
                 },
-                duration: 5000,
             });
         } finally {
             setIsLoading(false);

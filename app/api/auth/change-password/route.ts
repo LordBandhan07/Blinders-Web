@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
     try {
@@ -12,40 +13,60 @@ export async function POST(request: Request) {
             );
         }
 
-        // Get the current user from the request
-        const authHeader = request.headers.get('authorization');
-        if (!authHeader) {
+        // Get session from cookies
+        const cookieStore = await cookies();
+        const authToken = cookieStore.get('supabase-auth-token');
+
+        console.log('🔍 Auth token exists:', !!authToken);
+
+        if (!authToken) {
+            console.error('❌ No auth token in cookies');
             return NextResponse.json(
-                { error: 'Unauthorized' },
+                { error: 'Not authenticated - please login again' },
                 { status: 401 }
             );
         }
 
-        const token = authHeader.replace('Bearer ', '');
+        // Create admin client for password update
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
+        );
 
-        // Verify the token and get user
-        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+        // Verify token and get user
+        const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(authToken.value);
 
         if (userError || !user) {
+            console.error('❌ Token verification failed:', userError);
             return NextResponse.json(
-                { error: 'Unauthorized' },
+                { error: 'Invalid session - please login again' },
                 { status: 401 }
             );
         }
 
-        // Update the user's password
+        console.log('✅ User verified:', user.id);
+
+        // Update password using admin client
         const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
             user.id,
             { password: newPassword }
         );
 
         if (updateError) {
-            console.error('Password update error:', updateError);
+            console.error('❌ Password update error:', updateError);
             return NextResponse.json(
-                { error: 'Failed to update password' },
+                { error: updateError.message },
                 { status: 500 }
             );
         }
+
+        console.log('✅ Password updated in Supabase Auth');
 
         // Save password to profiles table for admin visibility
         const { error: profileError } = await supabaseAdmin
@@ -54,15 +75,20 @@ export async function POST(request: Request) {
             .eq('id', user.id);
 
         if (profileError) {
-            console.error('Profile password update error:', profileError);
-            // Don't fail the request, password was already changed
+            console.error('⚠️ Profile update error:', profileError);
+            // Don't fail - password is already changed
+        } else {
+            console.log('✅ Password saved to profiles for admin');
         }
 
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Change password API error:', error);
+        return NextResponse.json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+    } catch (error: any) {
+        console.error('❌ Change password API error:', error);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: error.message || 'Internal server error' },
             { status: 500 }
         );
     }
