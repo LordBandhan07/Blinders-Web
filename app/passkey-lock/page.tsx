@@ -25,7 +25,13 @@ export default function PasskeyLockPage() {
 
             // Check if session is still valid (24 hours)
             if (sessionData.unlocked && sessionData.expiresAt > now) {
-                router.push('/home');
+                // Check if user is logged in
+                const authToken = document.cookie.split('; ').find(row => row.startsWith('supabase-auth-token='));
+                if (authToken) {
+                    router.push('/home');
+                } else {
+                    router.push('/login');
+                }
                 return;
             }
         }
