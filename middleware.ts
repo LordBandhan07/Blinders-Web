@@ -15,25 +15,18 @@ export function middleware(request: NextRequest) {
     // Check for authentication token
     const token = request.cookies.get('supabase-auth-token');
 
-    // If no token and trying to access protected route, redirect to login
-    if (!token && pathname.startsWith('/home')) {
-        return NextResponse.redirect(new URL('/login', request.url));
-    }
+    // Protect /home routes - require both auth and passkey
+    if (pathname.startsWith('/home')) {
+        // No auth token - redirect to passkey lock
+        if (!token) {
+            return NextResponse.redirect(new URL('/passkey-lock', request.url));
+        }
 
-    // If has token but trying to access /home routes, check passkey session
-    if (token && pathname.startsWith('/home')) {
-        // Get passkey session from cookie (we'll set this client-side)
+        // Has auth but no passkey unlock - redirect to passkey lock
         const passkeySession = request.cookies.get('passkey-unlocked');
-
-        // If no passkey session or expired, redirect to lock screen
         if (!passkeySession) {
             return NextResponse.redirect(new URL('/passkey-lock', request.url));
         }
-    }
-
-    // If has token and trying to access login, redirect to home
-    if (token && pathname === '/login') {
-        return NextResponse.redirect(new URL('/home', request.url));
     }
 
     return NextResponse.next();
