@@ -199,6 +199,7 @@ export default function ChatPage() {
     const [isTyping, setIsTyping] = useState(false);
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
     const [isSendingMessage, setIsSendingMessage] = useState(false);
+    const [sendingUsers, setSendingUsers] = useState<string[]>([]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -472,6 +473,62 @@ export default function ChatPage() {
         }, 3000);
     };
 
+    // Sending indicator with Supabase Presence
+    useEffect(() => {
+        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+
+        const sendingChannel = supabase.channel(`sending:${activeChannel}`, {
+            config: {
+                presence: {
+                    key: currentUser.id,
+                },
+            },
+        });
+
+        // Subscribe to sending presence changes
+        sendingChannel
+            .on('presence', { event: 'sync' }, () => {
+                const state = sendingChannel.presenceState();
+                const sendingUserNames = Object.keys(state)
+                    .filter(id => id !== currentUser.id)
+                    .map(id => {
+                        const presenceData = state[id][0] as any;
+                        return presenceData?.display_name;
+                    })
+                    .filter(Boolean);
+
+                setSendingUsers(sendingUserNames);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Sending presence subscribed');
+                }
+            });
+
+        return () => {
+            supabase.removeChannel(sendingChannel);
+        };
+    }, [activeChannel, currentUser]);
+
+    // Handle sending events
+    const broadcastSending = (isSending: boolean) => {
+        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+
+        const sendingChannel = supabase.channel(`sending:${activeChannel}`);
+
+        if (isSending) {
+            // Track sending
+            sendingChannel.track({
+                user_id: currentUser.id,
+                display_name: currentUser.display_name,
+                sending: true,
+            });
+        } else {
+            // Stop tracking
+            sendingChannel.untrack();
+        }
+    };
+
     // Auto-scroll to bottom
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -503,6 +560,7 @@ export default function ChatPage() {
         const replyToId = replyingTo?.id;
 
         setIsSendingMessage(true); // Start sending indicator
+        broadcastSending(true); // Broadcast to other users
         setMessage(''); // Clear input immediately
         setMediaPreview(null); // Clear preview
         setReplyingTo(null); // Clear reply
@@ -591,6 +649,7 @@ export default function ChatPage() {
             }
         } finally {
             setIsSendingMessage(false); // Stop sending indicator
+            broadcastSending(false); // Stop broadcasting
         }
     };
 
@@ -990,6 +1049,24 @@ export default function ChatPage() {
                                     : typingUsers.length === 2
                                         ? `${typingUsers[0]} and ${typingUsers[1]} are typing...`
                                         : `${typingUsers.length} people are typing...`}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Sending Indicator */}
+                    {sendingUsers.length > 0 && (
+                        <div className="flex items-center gap-2 text-[#FFC107] text-sm font-semibold" style={{ padding: '10px 0' }}>
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse"></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></span>
+                            </div>
+                            <span>
+                                {sendingUsers.length === 1
+                                    ? `${sendingUsers[0]}'s message is coming...`
+                                    : sendingUsers.length === 2
+                                        ? `${sendingUsers[0]} and ${sendingUsers[1]}'s messages are coming...`
+                                        : `${sendingUsers.length} messages are coming...`}
                             </span>
                         </div>
                     )}
