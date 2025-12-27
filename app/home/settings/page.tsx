@@ -189,18 +189,23 @@ export default function SettingsPage() {
             });
 
             const data = await response.json();
+            console.log('Password change response:', response.ok, data);
 
             if (response.ok) {
-                toast.success('Password updated successfully!', {
+                console.log('✅ Password changed successfully!');
+                toast.success('Password updated successfully! You can now login with your new password.', {
                     style: {
                         background: '#000000',
                         color: '#FFC107',
                         border: '1px solid #FFC107',
                     },
+                    duration: 5000,
                 });
                 setNewPassword('');
                 setConfirmPassword('');
+                setPasswordsMatch(null);
             } else {
+                console.error('❌ Password change failed:', data.error);
                 toast.error(data.error || 'Failed to update password', {
                     style: {
                         background: '#000000',
