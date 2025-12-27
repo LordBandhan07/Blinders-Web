@@ -196,6 +196,8 @@ export default function ChatPage() {
     const [dmUsers, setDmUsers] = useState<UserProfile[]>([]);
     const [selectedDmUser, setSelectedDmUser] = useState<UserProfile | null>(null);
     const [dmMessages, setDmMessages] = useState<any[]>([]);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
