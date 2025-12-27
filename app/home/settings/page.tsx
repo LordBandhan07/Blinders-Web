@@ -163,9 +163,28 @@ export default function SettingsPage() {
         setIsLoading(true);
 
         try {
+            // Get session token from localStorage
+            const session = localStorage.getItem('supabase-session');
+            const sessionData = session ? JSON.parse(session) : null;
+            const token = sessionData?.access_token;
+
+            if (!token) {
+                toast.error('Session expired. Please login again.', {
+                    style: {
+                        background: '#000000',
+                        color: '#ffffff',
+                        border: '1px solid #FFC107',
+                    },
+                });
+                return;
+            }
+
             const response = await fetch('/api/auth/change-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ newPassword }),
             });
 
@@ -464,10 +483,10 @@ export default function SettingsPage() {
                                             placeholder="Confirm new password"
                                             required
                                             className={`bg-black text-xl text-white placeholder:text-gray-500 rounded-xl pr-24 ${passwordsMatch === null
-                                                    ? 'border-[rgba(255,193,7,0.2)] focus:border-[#FFC107]'
-                                                    : passwordsMatch
-                                                        ? 'border-green-500 focus:border-green-500'
-                                                        : 'border-red-500 focus:border-red-500'
+                                                ? 'border-[rgba(255,193,7,0.2)] focus:border-[#FFC107]'
+                                                : passwordsMatch
+                                                    ? 'border-green-500 focus:border-green-500'
+                                                    : 'border-red-500 focus:border-red-500'
                                                 }`}
                                             style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
                                         />
