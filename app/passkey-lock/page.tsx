@@ -16,26 +16,6 @@ export default function PasskeyLockPage() {
     const [attempts, setAttempts] = useState(0);
     const [isShaking, setIsShaking] = useState(false);
 
-    useEffect(() => {
-        // Check if already unlocked
-        const session = localStorage.getItem('passkey-session');
-        if (session) {
-            const sessionData = JSON.parse(session);
-            const now = Date.now();
-
-            // Check if session is still valid (24 hours)
-            if (sessionData.unlocked && sessionData.expiresAt > now) {
-                // Check if user is logged in
-                const authToken = document.cookie.split('; ').find(row => row.startsWith('supabase-auth-token='));
-                if (authToken) {
-                    router.push('/home');
-                } else {
-                    router.push('/login');
-                }
-                return;
-            }
-        }
-    }, [router]);
 
     const handleNumberClick = (num: string) => {
         if (passkey.length < 8) {
