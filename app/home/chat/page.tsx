@@ -416,6 +416,62 @@ export default function ChatPage() {
         };
     }, [activeChannel]);
 
+    // Typing indicator with Supabase Presence
+    useEffect(() => {
+        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+
+        const typingChannel = supabase.channel(`typing:${activeChannel}`, {
+            config: {
+                presence: {
+                    key: currentUser.id,
+                },
+            },
+        });
+
+        // Subscribe to presence changes
+        typingChannel
+            .on('presence', { event: 'sync' }, () => {
+                const state = typingChannel.presenceState();
+                const typingUserIds = Object.keys(state)
+                    .filter(id => id !== currentUser.id)
+                    .map(id => {
+                        const presenceData = state[id][0] as any;
+                        return presenceData?.display_name;
+                    })
+                    .filter(Boolean);
+
+                setTypingUsers(typingUserIds);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Typing presence subscribed');
+                }
+            });
+
+        return () => {
+            supabase.removeChannel(typingChannel);
+        };
+    }, [activeChannel, currentUser]);
+
+    // Handle typing events
+    const handleTyping = () => {
+        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+
+        const typingChannel = supabase.channel(`typing:${activeChannel}`);
+
+        // Track typing
+        typingChannel.track({
+            user_id: currentUser.id,
+            display_name: currentUser.display_name,
+            typing: true,
+        });
+
+        // Clear typing after 3 seconds
+        setTimeout(() => {
+            typingChannel.untrack();
+        }, 3000);
+    };
+
     // Auto-scroll to bottom
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -920,6 +976,24 @@ export default function ChatPage() {
                             </AnimatePresence>
                         </div>
                     )}
+                    {/* Typing Indicator */}
+                    {typingUsers.length > 0 && (
+                        <div className="flex items-center gap-2 text-gray-400 text-sm" style={{ padding: '10px 0' }}>
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </div>
+                            <span>
+                                {typingUsers.length === 1
+                                    ? `${typingUsers[0]} is typing...`
+                                    : typingUsers.length === 2
+                                        ? `${typingUsers[0]} and ${typingUsers[1]} are typing...`
+                                        : `${typingUsers.length} people are typing...`}
+                            </span>
+                        </div>
+                    )}
+
                     <div ref={messagesEndRef} />
                 </div>
             </div>
@@ -1032,7 +1106,10 @@ export default function ChatPage() {
 
                         <Input
                             value={message}
-                            onChange={(e) => setMessage(e.target.value)}
+                            onChange={(e) => {
+                                setMessage(e.target.value);
+                                handleTyping();
+                            }}
                             placeholder={
                                 isSendingMessage
                                     ? '📤 Sending...'
