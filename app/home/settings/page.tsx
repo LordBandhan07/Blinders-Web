@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, User, Shield, Save, Mail, Calendar } from 'lucide-react';
+import { Lock, User, Shield, Save, Mail, Calendar, Eye, EyeOff } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ export default function SettingsPage() {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
     const [userPasswords, setUserPasswords] = useState<Array<{ id: string; display_name: string; email: string; role: string; latest_password: string | null }>>([]);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // Fetch user profile
     useEffect(() => {
@@ -415,41 +417,51 @@ export default function SettingsPage() {
 
                             <form onSubmit={handlePasswordChange}>
                                 <div style={{ marginBottom: '15px' }}>
-                                    <label
-                                        className="text-sm font-semibold text-white flex items-center"
-                                        style={{ gap: '6px', marginBottom: '8px' }}
-                                    >
-                                        <Lock size={16} className="text-[#FFC107]" />
+                                    <label className="block text-gray-300 text-sm font-semibold" style={{ marginBottom: '8px' }}>
                                         New Password
                                     </label>
-                                    <Input
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="Enter new password"
-                                        required
-                                        className="bg-black text-xl border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl"
-                                        style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            placeholder="Enter new password"
+                                            required
+                                            className="bg-black text-xl border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl pr-12"
+                                            style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FFC107] transition-colors"
+                                        >
+                                            {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div style={{ marginBottom: '20px' }}>
-                                    <label
-                                        className="text-sm font-semibold text-white flex items-center"
-                                        style={{ gap: '6px', marginBottom: '8px' }}
-                                    >
-                                        <Lock size={16} className="text-[#FFC107]" />
+                                    <label className="block text-gray-300 text-sm font-semibold" style={{ marginBottom: '8px' }}>
                                         Confirm New Password
                                     </label>
-                                    <Input
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        placeholder="Confirm new password"
-                                        required
-                                        className="bg-black text-xl border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl"
-                                        style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Confirm new password"
+                                            required
+                                            className="bg-black text-xl border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl pr-12"
+                                            style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#FFC107] transition-colors"
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <Button
