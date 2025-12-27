@@ -1,0 +1,59 @@
+// Patch for realtime subscription - lines 359-395
+// Replace the existing realtime subscription useEffect with this
+
+    // Subscribe to real-time messages
+    useEffect(() => {
+        if (!activeChannel || activeChannel === 'admin') {
+            console.log('⏭️ Skipping realtime for admin channel');
+            return;
+        }
+
+        console.log('🔔 Setting up realtime subscription for:', activeChannel);
+
+        const channel = supabase
+            .channel(`messages:${activeChannel}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'messages',
+                    filter: `channel=eq.${activeChannel}`,
+                },
+                async (payload) => {
+                    console.log('📨 New message received:', payload.new);
+                    const newMessage = payload.new as Message;
+                    
+                    try {
+                        // Fetch sender's profile photo in realtime
+                        const { data: profile, error } = await supabase
+                            .from('profiles')
+                            .select('profile_photo_url')
+                            .eq('id', newMessage.sender_id)
+                            .single();
+                        
+                        if (error) console.error('Profile fetch error:', error);
+                        
+                        // Add profile photo to message
+                        const messageWithPhoto = {
+                            ...newMessage,
+                            sender_photo_url: profile?.profile_photo_url || null
+                        };
+                        
+                        console.log('✅ Adding message to state:', messageWithPhoto);
+                        setMessages((current) => [...current, messageWithPhoto]);
+                    } catch (err) {
+                        console.error('Error processing message:', err);
+                        setMessages((current) => [...current, newMessage]);
+                    }
+                }
+            )
+            .subscribe((status) => {
+                console.log('📡 Subscription status:', status);
+            });
+
+        return () => {
+            console.log('🔕 Unsubscribing from:', activeChannel);
+            supabase.removeChannel(channel);
+        };
+    }, [activeChannel]);

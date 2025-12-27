@@ -198,6 +198,7 @@ export default function ChatPage() {
     const [dmMessages, setDmMessages] = useState<any[]>([]);
     const [isTyping, setIsTyping] = useState(false);
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
+    const [isSendingMessage, setIsSendingMessage] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -360,6 +361,13 @@ export default function ChatPage() {
 
     // Subscribe to real-time messages
     useEffect(() => {
+        if (!activeChannel || activeChannel === 'admin') {
+            console.log('⏭️ Skipping realtime for admin channel');
+            return;
+        }
+
+        console.log('🔔 Setting up realtime subscription for:', activeChannel);
+
         const channel = supabase
             .channel(`messages:${activeChannel}`)
             .on(
@@ -371,27 +379,39 @@ export default function ChatPage() {
                     filter: `channel=eq.${activeChannel}`,
                 },
                 async (payload) => {
+                    console.log('📨 New message received:', payload.new);
                     const newMessage = payload.new as Message;
 
-                    // Fetch sender's profile photo in realtime
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('profile_photo_url')
-                        .eq('id', newMessage.sender_id)
-                        .single();
+                    try {
+                        // Fetch sender's profile photo in realtime
+                        const { data: profile, error } = await supabase
+                            .from('profiles')
+                            .select('profile_photo_url')
+                            .eq('id', newMessage.sender_id)
+                            .single();
 
-                    // Add profile photo to message
-                    const messageWithPhoto = {
-                        ...newMessage,
-                        sender_photo_url: profile?.profile_photo_url
-                    };
+                        if (error) console.error('Profile fetch error:', error);
 
-                    setMessages((current) => [...current, messageWithPhoto]);
+                        // Add profile photo to message
+                        const messageWithPhoto = {
+                            ...newMessage,
+                            sender_photo_url: profile?.profile_photo_url || null
+                        };
+
+                        console.log('✅ Adding message to state:', messageWithPhoto);
+                        setMessages((current) => [...current, messageWithPhoto]);
+                    } catch (err) {
+                        console.error('Error processing message:', err);
+                        setMessages((current) => [...current, newMessage]);
+                    }
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                console.log('📡 Subscription status:', status);
+            });
 
         return () => {
+            console.log('🔕 Unsubscribing from:', activeChannel);
             supabase.removeChannel(channel);
         };
     }, [activeChannel]);
@@ -426,6 +446,7 @@ export default function ChatPage() {
         const mediaUrl = mediaPreview?.url;
         const replyToId = replyingTo?.id;
 
+        setIsSendingMessage(true); // Start sending indicator
         setMessage(''); // Clear input immediately
         setMediaPreview(null); // Clear preview
         setReplyingTo(null); // Clear reply
@@ -512,6 +533,8 @@ export default function ChatPage() {
             if (mediaUrl) {
                 setMediaPreview({ url: mediaUrl, type: messageType as 'image' | 'video' | 'voice' });
             }
+        } finally {
+            setIsSendingMessage(false); // Stop sending indicator
         }
     };
 
@@ -1011,22 +1034,28 @@ export default function ChatPage() {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder={
-                                currentChannel?.canSend
-                                    ? `Message in ${currentChannel.name}...`
-                                    : 'Read-only channel'
+                                isSendingMessage
+                                    ? '📤 Sending...'
+                                    : currentChannel?.canSend
+                                        ? `Message in ${currentChannel.name}...`
+                                        : 'Read-only channel'
                             }
-                            disabled={!currentChannel?.canSend}
+                            disabled={!currentChannel?.canSend || isSendingMessage}
                             className="flex-1 bg-black border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl disabled:opacity-50"
                             style={{ height: '45px', paddingLeft: '15px', paddingRight: '15px' }}
                         />
 
                         <Button
                             type="submit"
-                            disabled={!message.trim() || !currentChannel?.canSend}
+                            disabled={!message.trim() || !currentChannel?.canSend || isSendingMessage}
                             className="bg-[#FFC107] hover:bg-[#FFD54F] text-black font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ width: '45px', height: '45px', padding: '0' }}
                         >
-                            <Send size={20} />
+                            {isSendingMessage ? (
+                                <div className="animate-spin">⏳</div>
+                            ) : (
+                                <Send size={20} />
+                            )}
                         </Button>
                     </form>
 
