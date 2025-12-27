@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import InstallPrompt from '@/app/components/InstallPrompt';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -251,6 +252,9 @@ export default function HomeLayout({ children }: LayoutProps) {
                     {children}
                 </div>
             </main>
+
+            {/* PWA Install Prompt */}
+            <InstallPrompt />
         </div>
     );
 }

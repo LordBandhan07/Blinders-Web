@@ -13,23 +13,24 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/blinders-logo.svg',
-        type: 'image/svg+xml',
-      },
-      {
-        url: '/blinders-logo.png',
+        url: '/icons/icon-192x192.png',
         type: 'image/png',
         sizes: '192x192',
+      },
+      {
+        url: '/icons/icon-512x512.png',
+        type: 'image/png',
+        sizes: '512x512',
       },
     ],
     apple: [
       {
-        url: '/blinders-logo.png',
+        url: '/icons/icon-192x192.png',
         sizes: '180x180',
         type: 'image/png',
       },
     ],
-    shortcut: '/blinders-logo.png',
+    shortcut: '/icons/icon-192x192.png',
   },
   manifest: '/manifest.json',
   appleWebApp: {
@@ -86,9 +87,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Blinders" />
-        <link rel="apple-touch-icon" href="/blinders-logo.png" />
-        <link rel="icon" type="image/svg+xml" href="/blinders-logo.svg" />
-        <link rel="icon" type="image/png" href="/blinders-logo.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
       </head>
       <body>
         {children}
