@@ -368,9 +368,23 @@ export default function ChatPage() {
                     table: 'messages',
                     filter: `channel=eq.${activeChannel}`,
                 },
-                (payload) => {
+                async (payload) => {
                     const newMessage = payload.new as Message;
-                    setMessages((current) => [...current, newMessage]);
+
+                    // Fetch sender's profile photo in realtime
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('profile_photo_url')
+                        .eq('id', newMessage.sender_id)
+                        .single();
+
+                    // Add profile photo to message
+                    const messageWithPhoto = {
+                        ...newMessage,
+                        sender_photo_url: profile?.profile_photo_url
+                    };
+
+                    setMessages((current) => [...current, messageWithPhoto]);
                 }
             )
             .subscribe();
