@@ -473,6 +473,14 @@ export default function ChatPage() {
         }, 3000);
     };
 
+    // Clear typing immediately (when sending message)
+    const clearTyping = () => {
+        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+
+        const typingChannel = supabase.channel(`typing:${activeChannel}`);
+        typingChannel.untrack();
+    };
+
     // Sending indicator with Supabase Presence
     useEffect(() => {
         if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
@@ -559,8 +567,10 @@ export default function ChatPage() {
         const mediaUrl = mediaPreview?.url;
         const replyToId = replyingTo?.id;
 
+        // Clear typing indicator first, then show sending indicator
+        clearTyping(); // Remove "User is typing..."
         setIsSendingMessage(true); // Start sending indicator
-        broadcastSending(true); // Broadcast to other users
+        broadcastSending(true); // Broadcast "User's message is coming..."
         setMessage(''); // Clear input immediately
         setMediaPreview(null); // Clear preview
         setReplyingTo(null); // Clear reply
