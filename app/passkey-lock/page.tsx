@@ -41,30 +41,46 @@ export default function PasskeyLockPage() {
         setPasskey(passkey.slice(0, -1));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (passkey === CORRECT_PASSKEY) {
-            // Correct passkey - unlock
-            const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-            const sessionData = {
-                unlocked: true,
-                expiresAt,
-                timestamp: new Date().toISOString()
-            };
+            // Check if user is still logged in (has auth token)
+            const authToken = document.cookie.split('; ').find(row => row.startsWith('supabase-auth-token='));
 
-            localStorage.setItem('passkey-session', JSON.stringify(sessionData));
+            if (authToken) {
+                // User still logged in - unlock and go to home
+                const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+                const sessionData = {
+                    unlocked: true,
+                    expiresAt,
+                    timestamp: new Date().toISOString()
+                };
 
-            // Set cookie for middleware
-            document.cookie = `passkey-unlocked=true; path=/; max-age=${24 * 60 * 60}`;
+                localStorage.setItem('passkey-session', JSON.stringify(sessionData));
 
-            toast.success('🛡️ Blinders Unlocked!', {
-                style: {
-                    background: '#000000',
-                    color: '#FFC107',
-                    border: '1px solid #FFC107',
-                },
-            });
+                // Set cookie for middleware
+                document.cookie = `passkey-unlocked=true; path=/; max-age=${24 * 60 * 60}`;
 
-            router.push('/home');
+                toast.success('🛡️ Blinders Unlocked!', {
+                    style: {
+                        background: '#000000',
+                        color: '#FFC107',
+                        border: '1px solid #FFC107',
+                    },
+                });
+
+                router.push('/home');
+            } else {
+                // User logged out (after 3 failures) - go to login
+                toast.success('✅ Correct passkey! Please login again.', {
+                    style: {
+                        background: '#000000',
+                        color: '#FFC107',
+                        border: '1px solid #FFC107',
+                    },
+                });
+
+                router.push('/login');
+            }
         } else {
             // Wrong passkey
             const newAttempts = attempts + 1;
@@ -74,18 +90,25 @@ export default function PasskeyLockPage() {
             setTimeout(() => setIsShaking(false), 500);
 
             if (newAttempts >= MAX_ATTEMPTS) {
-                // Auto logout
-                toast.error('❌ Too many failed attempts. Logging out...', {
+                // Silent logout in background - don't redirect
+                localStorage.removeItem('supabase-session');
+                document.cookie = 'supabase-auth-token=; path=/; max-age=0';
+                document.cookie = 'passkey-unlocked=; path=/; max-age=0';
+
+                // Call logout API silently
+                fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
+
+                toast.error('❌ Too many failed attempts. Session cleared. Enter correct passkey to continue.', {
                     style: {
                         background: '#000000',
                         color: '#ffffff',
                         border: '1px solid #FFC107',
                     },
+                    duration: 5000,
                 });
 
-                setTimeout(() => {
-                    handleLogout();
-                }, 1500);
+                // Reset attempts so user can continue trying
+                setAttempts(0);
             } else {
                 toast.error(`❌ Wrong passkey! ${MAX_ATTEMPTS - newAttempts} attempts remaining`, {
                     style: {
