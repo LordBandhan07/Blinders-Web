@@ -20,6 +20,7 @@ export default function SettingsPage() {
     const [userPasswords, setUserPasswords] = useState<Array<{ id: string; display_name: string; email: string; role: string; latest_password: string | null }>>([]);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [passwordsMatch, setPasswordsMatch] = useState<boolean | null>(null);
 
     // Fetch user profile
     useEffect(() => {
@@ -59,6 +60,17 @@ export default function SettingsPage() {
             fetchUserPasswords();
         }
     }, [userProfile]);
+
+    // Check if passwords match in realtime
+    useEffect(() => {
+        if (confirmPassword === '') {
+            setPasswordsMatch(null);
+        } else if (newPassword === confirmPassword) {
+            setPasswordsMatch(true);
+        } else {
+            setPasswordsMatch(false);
+        }
+    }, [newPassword, confirmPassword]);
 
     const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -451,9 +463,28 @@ export default function SettingsPage() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             placeholder="Confirm new password"
                                             required
-                                            className="bg-black text-xl border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl pr-12"
+                                            className={`bg-black text-xl text-white placeholder:text-gray-500 rounded-xl pr-24 ${passwordsMatch === null
+                                                    ? 'border-[rgba(255,193,7,0.2)] focus:border-[#FFC107]'
+                                                    : passwordsMatch
+                                                        ? 'border-green-500 focus:border-green-500'
+                                                        : 'border-red-500 focus:border-red-500'
+                                                }`}
                                             style={{ height: '50px', paddingLeft: '15px', paddingRight: '15px' }}
                                         />
+                                        {/* Password Match Indicator */}
+                                        {passwordsMatch !== null && (
+                                            <div className="absolute right-14 top-1/2 -translate-y-1/2">
+                                                {passwordsMatch ? (
+                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-green-500">
+                                                        <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill="currentColor" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-red-500">
+                                                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" fill="currentColor" />
+                                                    </svg>
+                                                )}
+                                            </div>
+                                        )}
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
