@@ -253,25 +253,12 @@ export default function ChatPage() {
                     const { data, error } = await supabase
                         .from('profiles')
                         .select('*')
-                        .in('role', ['president', 'chief_member', 'senior_member'])
+                        .neq('id', currentUser?.id) // Exclude current user
                         .order('display_name');
 
                     if (error) throw error;
 
-                    // Sort by role hierarchy: president -> chief_member -> senior_member
-                    const roleOrder: Record<string, number> = {
-                        'president': 1,
-                        'chief_member': 2,
-                        'senior_member': 3,
-                    };
-
-                    const sortedUsers = (data || []).sort((a, b) => {
-                        const roleA = roleOrder[a.role] || 999;
-                        const roleB = roleOrder[b.role] || 999;
-                        return roleA - roleB;
-                    });
-
-                    setDmUsers(sortedUsers);
+                    setDmUsers(data || []);
                 } catch (error) {
                     console.error('Error fetching users:', error);
                 }
