@@ -563,7 +563,9 @@ export default function ChatPage() {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to send message');
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('DM send failed:', response.status, errorData);
+                    throw new Error(errorData.error || 'Failed to send message');
                 }
 
                 // Fetch updated messages
