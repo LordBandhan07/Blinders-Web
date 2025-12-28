@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* Disable text selection globally */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* Disable iOS callout */
+}
+
+/* Allow selection only for input fields */
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 :root {
   /* Black & Deep Yellow Theme */
   --background: #000000;
@@ -168,6 +187,7 @@ body {
 
 /* Small phones (320px - 375px) */
 @media (max-width: 375px) {
+
   /* Reduce font sizes */
   body {
     font-size: 14px;
@@ -259,6 +279,7 @@ body {
 
 /* Landscape mode on narrow devices */
 @media (max-height: 500px) and (orientation: landscape) {
+
   /* Reduce vertical spacing */
   .py-8 {
     padding-top: 0.5rem !important;
@@ -279,11 +300,13 @@ body {
 
 /* Improve input fields on mobile */
 @media (max-width: 640px) {
+
   input[type="text"],
   input[type="email"],
   input[type="password"],
   textarea {
-    font-size: 16px !important; /* Prevents zoom on iOS */
+    font-size: 16px !important;
+    /* Prevents zoom on iOS */
   }
 }
 

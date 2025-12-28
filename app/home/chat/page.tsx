@@ -6,6 +6,7 @@ import { Send, Mic, Image as ImageIcon, Hash, Crown, Shield, ChevronDown, Megaph
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import EmojiPicker from '@/app/components/EmojiPicker';
 import toast from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
 
@@ -200,6 +201,12 @@ export default function ChatPage() {
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
     const [isSendingMessage, setIsSendingMessage] = useState(false);
     const [sendingUsers, setSendingUsers] = useState<string[]>([]);
+
+    // Emoji picker states
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [emojiPickerPosition, setEmojiPickerPosition] = useState({ x: 0, y: 0 });
+    const [selectedMessageForReaction, setSelectedMessageForReaction] = useState<string | null>(null);
+    const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);

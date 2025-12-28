@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from 'next/font/google';
 import "./globals.css";
 import Script from "next/script";
+import { Toaster } from 'react-hot-toast';
+import InstallPrompt from './components/InstallPrompt';
+import DisableContextMenu from './components/DisableContextMenu';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Blinders - The Future Agents",
@@ -91,7 +97,9 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
       </head>
       <body>
-        {children}
+        <DisableContextMenu>
+          {children}
+        </DisableContextMenu>
 
         {/* PWA Install Prompt Script */}
         <Script id="pwa-install" strategy="afterInteractive">
