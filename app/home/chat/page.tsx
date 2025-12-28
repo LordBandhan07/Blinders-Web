@@ -258,6 +258,7 @@ export default function ChatPage() {
 
                     if (error) throw error;
 
+                    console.log('DM Users fetched:', data?.length, 'users');
                     setDmUsers(data || []);
                 } catch (error) {
                     console.error('Error fetching users:', error);
