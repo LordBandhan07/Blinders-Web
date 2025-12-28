@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, Image as ImageIcon, Hash, Crown, Shield, ChevronDown, Megaphone, ArrowLeft } from 'lucide-react';
+import { Send, Mic, Image as ImageIcon, Hash, Crown, Shield, ChevronDown, Megaphone, ArrowLeft, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -181,7 +181,7 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime }: Mes
 }
 
 export default function ChatPage() {
-    const [activeChannel, setActiveChannel] = useState<'announcements' | 'professional' | 'study' | 'admin'>('announcements');
+    const [activeChannel, setActiveChannel] = useState<'announcements' | 'professional' | 'study' | 'dm'>('announcements');
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -864,7 +864,7 @@ export default function ChatPage() {
         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     };
 
-    const handleChannelSelect = (channelId: typeof activeChannel) => {
+    const handleChannelSelect = (channelId: 'announcements' | 'professional' | 'study' | 'dm') => {
         setActiveChannel(channelId);
         setIsDropdownOpen(false);
     };
