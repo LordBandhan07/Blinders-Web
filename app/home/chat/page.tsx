@@ -53,9 +53,12 @@ interface MessageItemProps {
     currentUser: UserProfile | null;
     setReplyingTo: (msg: Message | null) => void;
     formatTime: (timestamp: string) => string;
+    handleEmojiSelect: (emoji: string) => void;
+    handleLongPressStart: (e: React.TouchEvent | React.MouseEvent, messageId: string) => void;
+    handleLongPressEnd: () => void;
 }
 
-function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime }: MessageItemProps) {
+function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime, handleEmojiSelect, handleLongPressStart, handleLongPressEnd }: MessageItemProps) {
     const [swipeX, setSwipeX] = useState(0);
     const [touchStart, setTouchStart] = useState(0);
     const isOwnMessage = currentUser && msg.sender_id === currentUser.id;
@@ -1196,6 +1199,9 @@ export default function ChatPage() {
                                         currentUser={currentUser}
                                         setReplyingTo={setReplyingTo}
                                         formatTime={formatTime}
+                                        handleEmojiSelect={handleEmojiSelect}
+                                        handleLongPressStart={handleLongPressStart}
+                                        handleLongPressEnd={handleLongPressEnd}
                                     />
                                 ))}
                             </AnimatePresence>
