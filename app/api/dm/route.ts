@@ -74,7 +74,7 @@ export async function POST(request: Request) {
             );
         }
 
-        return NextResponse.json({ message: data });
+        return NextResponse.json({ message: data, success: true });
     } catch (error) {
         console.error('DM POST error:', error);
         return NextResponse.json(

@@ -1161,18 +1161,20 @@ export default function ChatPage() {
                             placeholder={
                                 isSendingMessage
                                     ? '📤 Sending...'
-                                    : currentChannel?.canSend
-                                        ? `Message in ${currentChannel.name}...`
-                                        : 'Read-only channel'
+                                    : activeChannel === 'dm'
+                                        ? 'Type a message...'
+                                        : currentChannel?.canSend
+                                            ? `Message in ${currentChannel.name}...`
+                                            : 'Read-only channel'
                             }
-                            disabled={!currentChannel?.canSend || isSendingMessage}
+                            disabled={activeChannel === 'dm' ? false : (!currentChannel?.canSend || isSendingMessage)}
                             className="flex-1 bg-black border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl disabled:opacity-50"
                             style={{ height: '45px', paddingLeft: '15px', paddingRight: '15px' }}
                         />
 
                         <Button
                             type="submit"
-                            disabled={!message.trim() || !currentChannel?.canSend || isSendingMessage}
+                            disabled={!message.trim() || (activeChannel === 'dm' ? false : !currentChannel?.canSend) || isSendingMessage}
                             className="bg-[#FFC107] hover:bg-[#FFD54F] text-black font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ width: '45px', height: '45px', padding: '0' }}
                         >
