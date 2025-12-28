@@ -59,8 +59,11 @@ export default function HomeLayout({ children }: LayoutProps) {
                         console.error('❌ No user object in response');
                     }
                 } else {
-                    const errorData = await response.json();
-                    console.error('❌ API error:', response.status, errorData);
+                    // 401 is expected after passkey unlock, don't spam console
+                    if (response.status !== 401) {
+                        const errorData = await response.json();
+                        console.error('❌ API error:', response.status, errorData);
+                    }
                 }
             } catch (error) {
                 console.error('❌ Fetch error:', error);

@@ -29,6 +29,16 @@ export default function LoginPage() {
             const data = await response.json();
 
             if (response.ok) {
+                // Save session to localStorage for mobile persistence
+                if (data.session) {
+                    localStorage.setItem('supabase-session', JSON.stringify({
+                        access_token: data.session.access_token,
+                        refresh_token: data.session.refresh_token,
+                        expires_at: data.session.expires_at,
+                        user: data.user
+                    }));
+                }
+
                 toast.success(`Welcome, ${data.user.display_name}!`, {
                     icon: '🕶️',
                     style: {
