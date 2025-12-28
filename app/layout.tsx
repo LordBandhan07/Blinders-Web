@@ -5,6 +5,7 @@ import Script from "next/script";
 import { Toaster } from 'react-hot-toast';
 import InstallPrompt from './components/InstallPrompt';
 import DisableContextMenu from './components/DisableContextMenu';
+import SessionMonitor from './components/SessionMonitor';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -98,6 +99,7 @@ export default function RootLayout({
       </head>
       <body>
         <DisableContextMenu>
+          <SessionMonitor />
           {children}
         </DisableContextMenu>
 

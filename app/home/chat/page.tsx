@@ -430,11 +430,21 @@ export default function ChatPage() {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'direct_messages',
-                    filter: `sender_id=eq.${selectedDmUser.id},receiver_id=eq.${currentUser.id}`,
                 },
                 (payload) => {
-                    console.log('📨 New DM received:', payload.new);
-                    setDmMessages((current) => [...current, payload.new as any]);
+                    const newMsg = payload.new as any;
+                    // Check if message belongs to current conversation
+                    if (
+                        (newMsg.sender_id === currentUser.id && newMsg.receiver_id === selectedDmUser.id) ||
+                        (newMsg.sender_id === selectedDmUser.id && newMsg.receiver_id === currentUser.id)
+                    ) {
+                        console.log('📨 New DM received:', newMsg);
+                        setDmMessages((current) => {
+                            // Prevent duplicates
+                            if (current.some(msg => msg.id === newMsg.id)) return current;
+                            return [...current, newMsg];
+                        });
+                    }
                 }
             )
             .subscribe((status) => {
@@ -758,7 +768,17 @@ export default function ChatPage() {
             // Start recording
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const recorder = new MediaRecorder(stream);
+
+                // Check supported MIME types
+                const mimeType = [
+                    'audio/webm;codecs=opus',
+                    'audio/webm',
+                    'audio/mp4',
+                    'audio/ogg;codecs=opus',
+                    ''
+                ].find(type => MediaRecorder.isTypeSupported(type));
+
+                const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
 
                 audioChunksRef.current = [];
 
@@ -769,8 +789,14 @@ export default function ChatPage() {
                 };
 
                 recorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                    const type = mimeType || 'audio/webm';
+                    const audioBlob = new Blob(audioChunksRef.current, { type });
                     stream.getTracks().forEach(track => track.stop());
+
+                    if (audioBlob.size === 0) {
+                        toast.error('Recording failed: No audio data captured');
+                        return;
+                    }
 
                     // Upload audio
                     await uploadVoiceMessage(audioBlob);
@@ -788,9 +814,17 @@ export default function ChatPage() {
                         border: '1px solid #FFC107',
                     },
                 });
-            } catch (error) {
+            } catch (error: any) {
                 console.error('Microphone access error:', error);
-                toast.error('Could not access microphone', {
+                let errorMessage = 'Could not access microphone';
+
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = 'Microphone permission denied';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = 'No microphone found';
+                }
+
+                toast.error(errorMessage, {
                     style: {
                         background: '#000000',
                         color: '#ffffff',
@@ -1172,7 +1206,30 @@ export default function ChatPage() {
                                 </div>
                             </motion.div>
                         ))
-                    ) : (activeChannel === 'dm' ? dmMessages : messages).length === 0 ? (
+                    ) : activeChannel === 'dm' && dmMessages.length === 0 ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center"
+                            style={{ paddingTop: '60px', paddingBottom: '60px' }}
+                        >
+                            <div
+                                className="rounded-full bg-[rgba(255,193,7,0.15)] flex items-center justify-center mx-auto"
+                                style={{ width: '80px', height: '80px', marginBottom: '20px' }}
+                            >
+                                <MessageCircle size={40} className="text-[#FFC107]" />
+                            </div>
+                            <h3
+                                className="text-2xl font-bold text-white"
+                                style={{ marginBottom: '10px' }}
+                            >
+                                No messages yet
+                            </h3>
+                            <p className="text-gray-400">
+                                Start a conversation with {selectedDmUser?.display_name}
+                            </p>
+                        </motion.div>
+                    ) : messages.length === 0 ? (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -1254,10 +1311,11 @@ export default function ChatPage() {
 
                     <div ref={messagesEndRef} />
                 </div>
-            </div>
+            </div >
 
             {/* Message Input - FIXED */}
-            <div className="flex-shrink-0 bg-[#0a0a0a] border-t border-[rgba(255,193,7,0.2)]" style={{ padding: '15px 20px' }}>
+            < div className="flex-shrink-0 bg-[#0a0a0a] border-t border-[rgba(255,193,7,0.2)]" style={{ padding: '15px 20px' }
+            }>
                 <div className="max-w-4xl mx-auto">
                     {/* Reply Preview */}
                     {replyingTo && (
@@ -1416,19 +1474,21 @@ export default function ChatPage() {
                         </p>
                     )}
                 </div>
-            </div>
+            </div >
 
             {/* Emoji Picker */}
-            {showEmojiPicker && (
-                <EmojiPicker
-                    onEmojiSelect={handleEmojiSelect}
-                    onClose={() => {
-                        setShowEmojiPicker(false);
-                        setSelectedMessageForReaction(null);
-                    }}
-                    position={emojiPickerPosition}
-                />
-            )}
-        </div>
+            {
+                showEmojiPicker && (
+                    <EmojiPicker
+                        onEmojiSelect={handleEmojiSelect}
+                        onClose={() => {
+                            setShowEmojiPicker(false);
+                            setSelectedMessageForReaction(null);
+                        }}
+                        position={emojiPickerPosition}
+                    />
+                )
+            }
+        </div >
     );
 }
