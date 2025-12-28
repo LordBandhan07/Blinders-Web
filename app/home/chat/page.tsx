@@ -858,6 +858,56 @@ export default function ChatPage() {
         }
     };
 
+    // Long press handlers for emoji reactions
+    const handleLongPressStart = (e: React.TouchEvent | React.MouseEvent, messageId: string) => {
+        const timer = setTimeout(() => {
+            const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+            setEmojiPickerPosition({ x: touch.clientX, y: touch.clientY });
+            setSelectedMessageForReaction(messageId);
+            setShowEmojiPicker(true);
+        }, 500); // 500ms hold
+
+        setLongPressTimer(timer);
+    };
+
+    const handleLongPressEnd = () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            setLongPressTimer(null);
+        }
+    };
+
+    const handleEmojiSelect = async (emoji: string) => {
+        if (!selectedMessageForReaction) return;
+
+        try {
+            const apiUrl = activeChannel === 'dm' ? '/api/dm/reactions' : '/api/reactions';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messageId: selectedMessageForReaction,
+                    emoji,
+                    action: 'add',
+                }),
+            });
+
+            if (response.ok) {
+                toast.success(`Reacted with ${emoji}`, {
+                    style: {
+                        background: '#000000',
+                        color: '#FFC107',
+                        border: '1px solid #FFC107',
+                    },
+                });
+            }
+        } catch (error) {
+            console.error('Failed to add reaction:', error);
+            toast.error('Failed to add reaction');
+        }
+    };
+
     const formatTime = (timestamp: string) => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -1025,6 +1075,11 @@ export default function ChatPage() {
                                         MozUserSelect: 'none',
                                         msUserSelect: 'none'
                                     }}
+                                    onTouchStart={(e) => handleLongPressStart(e, msg.id)}
+                                    onTouchEnd={handleLongPressEnd}
+                                    onMouseDown={(e) => handleLongPressStart(e, msg.id)}
+                                    onMouseUp={handleLongPressEnd}
+                                    onMouseLeave={handleLongPressEnd}
                                 >
                                     <p className="text-sm">{msg.content}</p>
                                     <p className="text-xs opacity-60 mt-1">
@@ -1278,6 +1333,18 @@ export default function ChatPage() {
                     )}
                 </div>
             </div>
-        </div >
+
+            {/* Emoji Picker */}
+            {showEmojiPicker && (
+                <EmojiPicker
+                    onEmojiSelect={handleEmojiSelect}
+                    onClose={() => {
+                        setShowEmojiPicker(false);
+                        setSelectedMessageForReaction(null);
+                    }}
+                    position={emojiPickerPosition}
+                />
+            )}
+        </div>
     );
 }
