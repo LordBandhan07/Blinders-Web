@@ -1407,6 +1407,28 @@ export default function ChatPage() {
 
                     <div ref={messagesEndRef} />
                 </div>
+                {/* Debug Panel - TEMPORARY */}
+                <div style={{
+                    position: 'fixed',
+                    bottom: '10px',
+                    right: '10px',
+                    background: 'rgba(0,0,0,0.8)',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    border: '1px solid #FFC107',
+                    color: '#FFF',
+                    fontSize: '10px',
+                    zIndex: 9999,
+                    maxWidth: '300px',
+                    pointerEvents: 'none'
+                }}>
+                    <strong>DEBUG MODE</strong><br />
+                    Channel: dm-global:{currentUser?.id}<br />
+                    Status: <span id="debug-status">WAITING</span><br />
+                    Last Event: <span id="debug-event">-</span><br />
+                    DM User: {selectedDmUser?.display_name || 'None'}<br />
+                    My ID: {currentUser?.id?.substring(0, 8)}...
+                </div>
             </div >
 
             {/* Message Input - FIXED */}
