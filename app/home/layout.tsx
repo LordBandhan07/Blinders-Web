@@ -85,7 +85,6 @@ export default function HomeLayout({ children }: LayoutProps) {
     const navItems = [
         { id: 'home', label: 'Home', icon: Home, href: '/home' },
         { id: 'chat', label: 'Chat', icon: MessageSquare, href: '/home/chat' },
-        { id: 'dm', label: 'Single Chat', icon: MessageCircle, href: '/home/dm' },
         { id: 'members', label: 'Members', icon: Users, href: '/home/members' },
         { id: 'settings', label: 'Settings', icon: Settings, href: '/home/settings' },
     ];

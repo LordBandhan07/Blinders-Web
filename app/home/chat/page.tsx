@@ -212,7 +212,7 @@ export default function ChatPage() {
         { id: 'announcements' as const, name: 'Chief Announcements', icon: Megaphone, canSend: true },
         { id: 'professional' as const, name: 'Professional Level', icon: Shield, canSend: true },
         { id: 'study' as const, name: 'Study Circle', icon: Hash, canSend: true },
-        { id: 'admin' as const, name: 'Chat with Chief', icon: Crown, canSend: true },
+        { id: 'dm' as const, name: 'Single Chat', icon: MessageCircle, canSend: true },
     ];
 
     // Regular user channels
@@ -220,7 +220,7 @@ export default function ChatPage() {
         { id: 'announcements' as const, name: 'Chief Announcements', icon: Megaphone, canSend: false },
         { id: 'professional' as const, name: 'Professional Level', icon: Shield, canSend: true },
         { id: 'study' as const, name: 'Study Circle', icon: Hash, canSend: true },
-        { id: 'admin' as const, name: 'Chat with Chief', icon: Crown, canSend: true },
+        { id: 'dm' as const, name: 'Single Chat', icon: MessageCircle, canSend: true },
     ];
 
     const channels = isAdmin ? adminChannels : userChannels;
