@@ -15,6 +15,7 @@ export default function PasskeyLockPage() {
     const [passkey, setPasskey] = useState('');
     const [attempts, setAttempts] = useState(0);
     const [isShaking, setIsShaking] = useState(false);
+    const [isLoggedOut, setIsLoggedOut] = useState(false); // Track if user was logged out
 
 
     const handleNumberClick = (num: string) => {
@@ -85,6 +86,9 @@ export default function PasskeyLockPage() {
                 // Call logout API silently
                 fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
 
+                // Mark as logged out to hide counter permanently
+                setIsLoggedOut(true);
+
                 toast.error('❌ Too many failed attempts. Session cleared. Enter correct passkey to continue.', {
                     style: {
                         background: '#000000',
@@ -145,15 +149,12 @@ export default function PasskeyLockPage() {
                 </motion.div>
 
                 {/* Title */}
-                <h1 className="text-3xl font-bold text-white text-center mb-2">
-                    🛡️ BLINDERS LOCK
-                </h1>
-                <p className="text-gray-400 text-center mb-8">
+                <h3 className="text-gray-400 text-2xl font-bold text-center mb-8" style={{ marginTop: '20px' }}>
                     Enter your passkey to unlock
-                </p>
+                </h3>
 
                 {/* PIN Display */}
-                <div className="flex justify-center gap-3 mb-8">
+                <div className="flex justify-center gap-3 mb-8" style={{ padding: '20px' }}>
                     {[...Array(8)].map((_, i) => (
                         <div
                             key={i}
@@ -170,7 +171,7 @@ export default function PasskeyLockPage() {
                 </div>
 
                 {/* Attempts Counter - Hidden after 3 failures */}
-                {attempts < MAX_ATTEMPTS && (
+                {!isLoggedOut && attempts < MAX_ATTEMPTS && (
                     <div className="text-center mb-6">
                         <p className="text-gray-400 text-sm">
                             Attempts remaining: <span className="text-[#FFC107] font-bold">{MAX_ATTEMPTS - attempts}/{MAX_ATTEMPTS}</span>
@@ -209,16 +210,6 @@ export default function PasskeyLockPage() {
                         ✓
                     </Button>
                 </div>
-
-                {/* Logout Button */}
-                <Button
-                    onClick={handleLogout}
-                    variant="ghost"
-                    className="w-full text-gray-400 hover:text-white hover:bg-[rgba(255,193,7,0.1)]"
-                >
-                    <LogOut size={18} style={{ marginRight: '8px' }} />
-                    Forgot PIN? Logout
-                </Button>
             </motion.div>
         </div>
     );
