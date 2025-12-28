@@ -543,6 +543,43 @@ export default function SettingsPage() {
                         </div>
                     </Card>
                 </motion.div>
+
+                {/* Logout Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    style={{ marginBottom: '40px' }}
+                >
+                    <Card className="bg-[#0a0a0a] border-red-900/30 hover:border-red-500/50 transition-colors">
+                        <div style={{ padding: '25px' }}>
+                            <div className="flex items-center" style={{ gap: '10px', marginBottom: '8px' }}>
+                                <LogOut className="text-red-500" size={24} />
+                                <h2 className="text-2xl font-bold text-white">Sign Out</h2>
+                            </div>
+                            <p className="text-gray-400" style={{ marginBottom: '20px' }}>
+                                Securely log out of your account on this device.
+                            </p>
+
+                            <Button
+                                onClick={async () => {
+                                    try {
+                                        await fetch('/api/auth/logout', { method: 'POST' });
+                                        toast.success('Logged out successfully');
+                                        router.push('/login');
+                                    } catch (error) {
+                                        toast.error('Logout failed');
+                                    }
+                                }}
+                                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 hover:border-red-500 font-bold rounded-xl"
+                                style={{ height: '50px', gap: '10px' }}
+                            >
+                                <LogOut size={20} />
+                                Sign Out
+                            </Button>
+                        </div>
+                    </Card>
+                </motion.div>
             </div>
         </div >
     );
