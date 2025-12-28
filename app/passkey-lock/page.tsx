@@ -169,12 +169,14 @@ export default function PasskeyLockPage() {
                     ))}
                 </div>
 
-                {/* Attempts Counter */}
-                <div className="text-center mb-6">
-                    <p className="text-gray-400 text-sm">
-                        Attempts remaining: <span className="text-[#FFC107] font-bold">{MAX_ATTEMPTS - attempts}/{MAX_ATTEMPTS}</span>
-                    </p>
-                </div>
+                {/* Attempts Counter - Hidden after 3 failures */}
+                {attempts < MAX_ATTEMPTS && (
+                    <div className="text-center mb-6">
+                        <p className="text-gray-400 text-sm">
+                            Attempts remaining: <span className="text-[#FFC107] font-bold">{MAX_ATTEMPTS - attempts}/{MAX_ATTEMPTS}</span>
+                        </p>
+                    </div>
+                )}
 
                 {/* Number Pad */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
