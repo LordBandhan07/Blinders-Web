@@ -205,7 +205,7 @@ export default function ChatPage() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const isAdmin = currentUser?.role === 'admin';
+    const isAdmin = currentUser?.role === 'dm';
 
     // Admin channels
     const adminChannels = [
@@ -247,7 +247,7 @@ export default function ChatPage() {
 
     // Fetch users for admin DM when admin channel is selected
     useEffect(() => {
-        if (activeChannel === 'admin' && isAdmin) {
+        if (activeChannel === 'dm' && isAdmin) {
             const fetchUsers = async () => {
                 try {
                     const { data, error } = await supabase
@@ -288,7 +288,7 @@ export default function ChatPage() {
         const fetchMessages = async () => {
             try {
                 // For admin channel, fetch DMs instead of channel messages
-                if (activeChannel === 'admin') {
+                if (activeChannel === 'dm') {
                     if (!currentUser) return;
 
                     // For regular users, fetch DMs with admin
@@ -362,7 +362,7 @@ export default function ChatPage() {
 
     // Subscribe to real-time messages
     useEffect(() => {
-        if (!activeChannel || activeChannel === 'admin') {
+        if (!activeChannel || activeChannel === 'dm') {
             console.log('⏭️ Skipping realtime for admin channel');
             return;
         }
@@ -419,7 +419,7 @@ export default function ChatPage() {
 
     // Typing indicator with Supabase Presence
     useEffect(() => {
-        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
 
         const typingChannel = supabase.channel(`typing:${activeChannel}`, {
             config: {
@@ -456,7 +456,7 @@ export default function ChatPage() {
 
     // Handle typing events
     const handleTyping = () => {
-        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
 
         const typingChannel = supabase.channel(`typing:${activeChannel}`);
 
@@ -475,7 +475,7 @@ export default function ChatPage() {
 
     // Clear typing immediately (when sending message)
     const clearTyping = () => {
-        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
 
         const typingChannel = supabase.channel(`typing:${activeChannel}`);
         typingChannel.untrack();
@@ -483,7 +483,7 @@ export default function ChatPage() {
 
     // Sending indicator with Supabase Presence
     useEffect(() => {
-        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
 
         const sendingChannel = supabase.channel(`sending:${activeChannel}`, {
             config: {
@@ -520,7 +520,7 @@ export default function ChatPage() {
 
     // Handle sending events
     const broadcastSending = (isSending: boolean) => {
-        if (!activeChannel || activeChannel === 'admin' || !currentUser) return;
+        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
 
         const sendingChannel = supabase.channel(`sending:${activeChannel}`);
 
@@ -577,7 +577,7 @@ export default function ChatPage() {
 
         try {
             // For admin channel, send as DM
-            if (activeChannel === 'admin') {
+            if (activeChannel === 'dm') {
                 let receiverId;
 
                 if (isAdmin && selectedDmUser) {
@@ -884,7 +884,7 @@ export default function ChatPage() {
                 <div className="max-w-6xl mx-auto">
                     <div className="flex items-center justify-between w-full" style={{ gap: '15px' }}>
                         {/* Left: Back button when admin has selected a user (replaces menu button position) */}
-                        {activeChannel === 'admin' && isAdmin && selectedDmUser ? (
+                        {activeChannel === 'dm' && isAdmin && selectedDmUser ? (
                             <button
                                 onClick={() => setSelectedDmUser(null)}
                                 className="text-[#FFC107] hover:text-[#FFD54F] transition-all p-2"
@@ -962,7 +962,7 @@ export default function ChatPage() {
             <div className="flex-1 overflow-y-auto" style={{ padding: '20px' }}>
                 <div className="max-w-4xl mx-auto">
                     {/* Admin DM: Show user selection grid */}
-                    {activeChannel === 'admin' && isAdmin && !selectedDmUser ? (
+                    {activeChannel === 'dm' && isAdmin && !selectedDmUser ? (
                         <div>
                             <h2 className="text-2xl font-bold text-white" style={{ marginBottom: '20px' }}>
                                 Select a user to message
@@ -1004,7 +1004,7 @@ export default function ChatPage() {
                                 ))}
                             </div>
                         </div>
-                    ) : (activeChannel === 'admin' ? dmMessages : messages).length === 0 ? (
+                    ) : (activeChannel === 'dm' ? dmMessages : messages).length === 0 ? (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
