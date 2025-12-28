@@ -22,6 +22,19 @@ interface Message {
     media_type?: string;
     created_at: string;
     reply_to?: string | null;
+    reactions?: Reaction[];
+}
+
+interface Reaction {
+    id: string;
+    message_id: string;
+    user_id: string;
+    emoji: string;
+    created_at: string;
+    profiles?: {
+        display_name: string;
+        profile_photo_url?: string;
+    };
 }
 
 interface UserProfile {
@@ -174,6 +187,27 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime }: Mes
                             <source src={msg.media_url} type="audio/webm" />
                             Your browser does not support the audio tag.
                         </audio>
+                    )}
+
+                    {/* Reactions Display */}
+                    {msg.reactions && msg.reactions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                            {Object.entries(
+                                msg.reactions.reduce((acc, reaction) => {
+                                    acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1;
+                                    return acc;
+                                }, {} as Record<string, number>)
+                            ).map(([emoji, count]) => (
+                                <button
+                                    key={emoji}
+                                    onClick={() => handleEmojiSelect(emoji)}
+                                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-[rgba(255,193,7,0.1)] border border-[rgba(255,193,7,0.3)] hover:bg-[rgba(255,193,7,0.2)] transition-colors"
+                                >
+                                    <span className="text-sm">{emoji}</span>
+                                    <span className="text-xs text-[#FFC107] font-semibold">{count}</span>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
@@ -333,6 +367,41 @@ export default function ChatPage() {
         };
 
         fetchMessages();
+
+        // Fetch reactions for messages
+        const fetchReactions = async () => {
+            if (activeChannel === 'dm' || !messages.length) return;
+
+            try {
+                const messageIds = messages.map(m => m.id);
+                // Fetch reactions for all messages
+                const { data: reactions } = await supabase
+                    .from('message_reactions')
+                    .select(`
+                        *,
+                        profiles:user_id (
+                            display_name,
+                            profile_photo_url
+                        )
+                    `)
+                    .in('message_id', messageIds);
+
+                if (reactions) {
+                    // Group reactions by message
+                    const updatedMessages = messages.map(msg => ({
+                        ...msg,
+                        reactions: reactions.filter(r => r.message_id === msg.id)
+                    }));
+                    setMessages(updatedMessages);
+                }
+            } catch (error) {
+                console.error('Failed to fetch reactions:', error);
+            }
+        };
+
+        if (messages.length > 0) {
+            fetchReactions();
+        }
     }, [activeChannel, selectedDmUser?.id]);
 
     // Realtime subscription for DM messages
