@@ -8,8 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 
 export default function SettingsPage() {
+    const router = useRouter();
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
