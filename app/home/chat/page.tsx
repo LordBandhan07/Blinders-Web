@@ -328,6 +328,37 @@ export default function ChatPage() {
         fetchMessages();
     }, [activeChannel, selectedDmUser?.id]);
 
+    // Realtime subscription for DM messages
+    useEffect(() => {
+        if (activeChannel !== 'dm' || !selectedDmUser || !currentUser) return;
+
+        console.log('🔔 Setting up DM realtime subscription');
+
+        const channel = supabase
+            .channel(`dm:${currentUser.id}:${selectedDmUser.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'direct_messages',
+                    filter: `sender_id=eq.${selectedDmUser.id},receiver_id=eq.${currentUser.id}`,
+                },
+                (payload) => {
+                    console.log('📨 New DM received:', payload.new);
+                    setDmMessages((current) => [...current, payload.new as any]);
+                }
+            )
+            .subscribe((status) => {
+                console.log('📡 DM subscription status:', status);
+            });
+
+        return () => {
+            console.log('🔕 Unsubscribing from DM');
+            supabase.removeChannel(channel);
+        };
+    }, [activeChannel, selectedDmUser?.id, currentUser?.id]);
+
     // Subscribe to real-time messages
     useEffect(() => {
         if (!activeChannel || activeChannel === 'dm') {
