@@ -977,8 +977,8 @@ export default function ChatPage() {
                             >
                                 <div
                                     className={`max-w-[70%] rounded-xl ${msg.sender_id === currentUser?.id
-                                            ? 'bg-[#FFC107] text-black'
-                                            : 'bg-[#1a1a1a] text-white border border-[rgba(255,193,7,0.2)]'
+                                        ? 'bg-[#FFC107] text-black'
+                                        : 'bg-[#1a1a1a] text-white border border-[rgba(255,193,7,0.2)]'
                                         }`}
                                     style={{ padding: '12px 16px' }}
                                 >
@@ -992,247 +992,248 @@ export default function ChatPage() {
                                 </div>
                             </motion.div>
                         ))
-                        < motion.div
+                    ) : (activeChannel === 'dm' ? dmMessages : messages).length === 0 ? (
+                        <motion.div
                             initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center"
-                    style={{ paddingTop: '60px', paddingBottom: '60px' }}
+                            animate={{ opacity: 1 }}
+                            className="text-center"
+                            style={{ paddingTop: '60px', paddingBottom: '60px' }}
                         >
-                    <div
-                        className="rounded-full bg-[rgba(255,193,7,0.15)] flex items-center justify-center mx-auto"
-                        style={{ width: '80px', height: '80px', marginBottom: '20px' }}
-                    >
-                        <Hash size={40} className="text-[#FFC107]" />
-                    </div>
-                    <h3
-                        className="text-2xl font-bold text-white"
-                        style={{ marginBottom: '10px' }}
-                    >
-                        Welcome to {currentChannel?.name}
-                    </h3>
-                    <p className="text-gray-400 text-lg">
-                        {currentChannel?.canSend
-                            ? 'Start a conversation'
-                            : 'Read-only channel - Only the Chief can post here'}
-                    </p>
-                </motion.div>
-                ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    <AnimatePresence>
-                        {messages.map((msg, index) => (
-                            <MessageItem
-                                key={msg.id}
-                                msg={msg}
-                                index={index}
-                                currentUser={currentUser}
-                                setReplyingTo={setReplyingTo}
-                                formatTime={formatTime}
-                            />
-                        ))}
-                    </AnimatePresence>
-                </div>
-                    )}
-                {/* Typing Indicator */}
-                {typingUsers.length > 0 && (
-                    <div className="flex items-center gap-2 text-gray-400 text-sm" style={{ padding: '10px 0' }}>
-                        <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                        </div>
-                        <span>
-                            {typingUsers.length === 1
-                                ? `${typingUsers[0]} is typing...`
-                                : typingUsers.length === 2
-                                    ? `${typingUsers[0]} and ${typingUsers[1]} are typing...`
-                                    : `${typingUsers.length} people are typing...`}
-                        </span>
-                    </div>
-                )}
-
-                {/* Sending Indicator */}
-                {sendingUsers.length > 0 && (
-                    <div className="flex items-center gap-2 text-[#FFC107] text-sm font-semibold" style={{ padding: '10px 0' }}>
-                        <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse"></span>
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></span>
-                            <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></span>
-                        </div>
-                        <span>
-                            {sendingUsers.length === 1
-                                ? `${sendingUsers[0]}'s message is coming...`
-                                : sendingUsers.length === 2
-                                    ? `${sendingUsers[0]} and ${sendingUsers[1]}'s messages are coming...`
-                                    : `${sendingUsers.length} messages are coming...`}
-                        </span>
-                    </div>
-                )}
-
-                <div ref={messagesEndRef} />
-            </div>
-        </div>
-
-            {/* Message Input - FIXED */ }
-    <div className="flex-shrink-0 bg-[#0a0a0a] border-t border-[rgba(255,193,7,0.2)]" style={{ padding: '15px 20px' }}>
-        <div className="max-w-4xl mx-auto">
-            {/* Reply Preview */}
-            {replyingTo && (
-                <div
-                    className="bg-[rgba(255,193,7,0.1)] border-l-4 border-[#FFC107] rounded-lg"
-                    style={{ padding: '10px 12px', marginBottom: '12px' }}
-                >
-                    <div className="flex items-start justify-between" style={{ gap: '12px' }}>
-                        <div className="flex-1">
-                            <div className="flex items-center text-[#FFC107] text-sm font-semibold" style={{ marginBottom: '4px', gap: '6px' }}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
-                                </svg>
-                                <span>Replying to {replyingTo.sender_name}</span>
+                            <div
+                                className="rounded-full bg-[rgba(255,193,7,0.15)] flex items-center justify-center mx-auto"
+                                style={{ width: '80px', height: '80px', marginBottom: '20px' }}
+                            >
+                                <Hash size={40} className="text-[#FFC107]" />
                             </div>
-                            <p className="text-gray-300 text-sm truncate">{replyingTo.content}</p>
-                        </div>
-                        <button
-                            onClick={() => setReplyingTo(null)}
-                            className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
-                        >
-                            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Media Preview */}
-            {mediaPreview && (
-                <div
-                    className="bg-[rgba(255,193,7,0.1)] border border-[rgba(255,193,7,0.3)] rounded-xl"
-                    style={{ padding: '12px', marginBottom: '12px' }}
-                >
-                    <div className="flex items-start" style={{ gap: '12px' }}>
-                        {/* Preview Content */}
-                        <div className="flex-1">
-                            {mediaPreview.type === 'image' && (
-                                <img
-                                    src={mediaPreview.url}
-                                    alt="Preview"
-                                    className="rounded-lg"
-                                    style={{ maxWidth: '200px', maxHeight: '150px' }}
-                                />
-                            )}
-                            {mediaPreview.type === 'voice' && (
-                                <div className="flex items-center text-[#FFC107]" style={{ gap: '8px' }}>
-                                    <Mic size={20} />
-                                    <span className="text-sm font-semibold">Voice message ready</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setMediaPreview(null)}
-                            className="text-gray-400 hover:text-white transition-colors"
-                            style={{ padding: '4px' }}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Hidden File Input */}
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-            />
-
-            <form onSubmit={handleSendMessage} className="flex" style={{ gap: '10px' }}>
-                <div className="flex" style={{ gap: '6px' }}>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={handleVoiceRecord}
-                        className={`${isRecording
-                            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                            : 'bg-[rgba(255,193,7,0.1)] hover:bg-[rgba(255,193,7,0.2)] text-[#FFC107]'
-                            } rounded-xl`}
-                        style={{ width: '45px', height: '45px', padding: '0' }}
-                        disabled={!currentChannel?.canSend || isUploading}
-                    >
-                        <Mic size={20} />
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={handleImageUpload}
-                        className="bg-[rgba(255,193,7,0.1)] hover:bg-[rgba(255,193,7,0.2)] text-[#FFC107] rounded-xl"
-                        style={{ width: '45px', height: '45px', padding: '0' }}
-                        disabled={!currentChannel?.canSend || isUploading}
-                    >
-                        <ImageIcon size={20} />
-                    </Button>
-                </div>
-
-                <Input
-                    value={message}
-                    onChange={(e) => {
-                        setMessage(e.target.value);
-                        handleTyping();
-                    }}
-                    placeholder={
-                        isSendingMessage
-                            ? '📤 Sending...'
-                            : activeChannel === 'dm'
-                                ? 'Type a message...'
-                                : currentChannel?.canSend
-                                    ? `Message in ${currentChannel.name}...`
-                                    : 'Read-only channel'
-                    }
-                    disabled={activeChannel === 'dm' ? false : (!currentChannel?.canSend || isSendingMessage)}
-                    className="flex-1 bg-black border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl disabled:opacity-50"
-                    style={{ height: '45px', paddingLeft: '15px', paddingRight: '15px' }}
-                />
-
-                <Button
-                    type="submit"
-                    disabled={!message.trim() || (activeChannel === 'dm' ? false : !currentChannel?.canSend) || isSendingMessage}
-                    className="bg-[#FFC107] hover:bg-[#FFD54F] text-black font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ width: '45px', height: '45px', padding: '0' }}
-                >
-                    {isSendingMessage ? (
-                        <div className="animate-spin">⏳</div>
+                            <h3
+                                className="text-2xl font-bold text-white"
+                                style={{ marginBottom: '10px' }}
+                            >
+                                Welcome to {currentChannel?.name}
+                            </h3>
+                            <p className="text-gray-400 text-lg">
+                                {currentChannel?.canSend
+                                    ? 'Start a conversation'
+                                    : 'Read-only channel - Only the Chief can post here'}
+                            </p>
+                        </motion.div>
                     ) : (
-                        <Send size={20} />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <AnimatePresence>
+                                {messages.map((msg, index) => (
+                                    <MessageItem
+                                        key={msg.id}
+                                        msg={msg}
+                                        index={index}
+                                        currentUser={currentUser}
+                                        setReplyingTo={setReplyingTo}
+                                        formatTime={formatTime}
+                                    />
+                                ))}
+                            </AnimatePresence>
+                        </div>
                     )}
-                </Button>
-            </form>
+                    {/* Typing Indicator */}
+                    {typingUsers.length > 0 && (
+                        <div className="flex items-center gap-2 text-gray-400 text-sm" style={{ padding: '10px 0' }}>
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </div>
+                            <span>
+                                {typingUsers.length === 1
+                                    ? `${typingUsers[0]} is typing...`
+                                    : typingUsers.length === 2
+                                        ? `${typingUsers[0]} and ${typingUsers[1]} are typing...`
+                                        : `${typingUsers.length} people are typing...`}
+                            </span>
+                        </div>
+                    )}
 
-            {/* Upload Progress Indicator */}
-            {isUploading && (
-                <div
-                    className="flex items-center justify-center text-[#FFC107]"
-                    style={{ marginTop: '10px', gap: '10px' }}
-                >
-                    <div className="animate-spin rounded-full border-2 border-[#FFC107] border-t-transparent" style={{ width: '20px', height: '20px' }} />
-                    <span className="text-sm font-semibold">Uploading file...</span>
+                    {/* Sending Indicator */}
+                    {sendingUsers.length > 0 && (
+                        <div className="flex items-center gap-2 text-[#FFC107] text-sm font-semibold" style={{ padding: '10px 0' }}>
+                            <div className="flex gap-1">
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse"></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '200ms' }}></span>
+                                <span className="w-2 h-2 bg-[#FFC107] rounded-full animate-pulse" style={{ animationDelay: '400ms' }}></span>
+                            </div>
+                            <span>
+                                {sendingUsers.length === 1
+                                    ? `${sendingUsers[0]}'s message is coming...`
+                                    : sendingUsers.length === 2
+                                        ? `${sendingUsers[0]} and ${sendingUsers[1]}'s messages are coming...`
+                                        : `${sendingUsers.length} messages are coming...`}
+                            </span>
+                        </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
                 </div>
-            )}
+            </div>
 
-            {!currentChannel?.canSend && (
-                <p
-                    className="text-xs text-gray-500 text-center"
-                    style={{ marginTop: '10px' }}
-                >
-                    🔒 Read-only channel. Only the Chief can post announcements.
-                </p>
-            )}
-        </div>
-    </div>
+            {/* Message Input - FIXED */}
+            <div className="flex-shrink-0 bg-[#0a0a0a] border-t border-[rgba(255,193,7,0.2)]" style={{ padding: '15px 20px' }}>
+                <div className="max-w-4xl mx-auto">
+                    {/* Reply Preview */}
+                    {replyingTo && (
+                        <div
+                            className="bg-[rgba(255,193,7,0.1)] border-l-4 border-[#FFC107] rounded-lg"
+                            style={{ padding: '10px 12px', marginBottom: '12px' }}
+                        >
+                            <div className="flex items-start justify-between" style={{ gap: '12px' }}>
+                                <div className="flex-1">
+                                    <div className="flex items-center text-[#FFC107] text-sm font-semibold" style={{ marginBottom: '4px', gap: '6px' }}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
+                                        </svg>
+                                        <span>Replying to {replyingTo.sender_name}</span>
+                                    </div>
+                                    <p className="text-gray-300 text-sm truncate">{replyingTo.content}</p>
+                                </div>
+                                <button
+                                    onClick={() => setReplyingTo(null)}
+                                    className="text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Media Preview */}
+                    {mediaPreview && (
+                        <div
+                            className="bg-[rgba(255,193,7,0.1)] border border-[rgba(255,193,7,0.3)] rounded-xl"
+                            style={{ padding: '12px', marginBottom: '12px' }}
+                        >
+                            <div className="flex items-start" style={{ gap: '12px' }}>
+                                {/* Preview Content */}
+                                <div className="flex-1">
+                                    {mediaPreview.type === 'image' && (
+                                        <img
+                                            src={mediaPreview.url}
+                                            alt="Preview"
+                                            className="rounded-lg"
+                                            style={{ maxWidth: '200px', maxHeight: '150px' }}
+                                        />
+                                    )}
+                                    {mediaPreview.type === 'voice' && (
+                                        <div className="flex items-center text-[#FFC107]" style={{ gap: '8px' }}>
+                                            <Mic size={20} />
+                                            <span className="text-sm font-semibold">Voice message ready</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Close Button */}
+                                <button
+                                    onClick={() => setMediaPreview(null)}
+                                    className="text-gray-400 hover:text-white transition-colors"
+                                    style={{ padding: '4px' }}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hidden File Input */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        style={{ display: 'none' }}
+                    />
+
+                    <form onSubmit={handleSendMessage} className="flex" style={{ gap: '10px' }}>
+                        <div className="flex" style={{ gap: '6px' }}>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleVoiceRecord}
+                                className={`${isRecording
+                                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                                    : 'bg-[rgba(255,193,7,0.1)] hover:bg-[rgba(255,193,7,0.2)] text-[#FFC107]'
+                                    } rounded-xl`}
+                                style={{ width: '45px', height: '45px', padding: '0' }}
+                                disabled={!currentChannel?.canSend || isUploading}
+                            >
+                                <Mic size={20} />
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={handleImageUpload}
+                                className="bg-[rgba(255,193,7,0.1)] hover:bg-[rgba(255,193,7,0.2)] text-[#FFC107] rounded-xl"
+                                style={{ width: '45px', height: '45px', padding: '0' }}
+                                disabled={!currentChannel?.canSend || isUploading}
+                            >
+                                <ImageIcon size={20} />
+                            </Button>
+                        </div>
+
+                        <Input
+                            value={message}
+                            onChange={(e) => {
+                                setMessage(e.target.value);
+                                handleTyping();
+                            }}
+                            placeholder={
+                                isSendingMessage
+                                    ? '📤 Sending...'
+                                    : activeChannel === 'dm'
+                                        ? 'Type a message...'
+                                        : currentChannel?.canSend
+                                            ? `Message in ${currentChannel.name}...`
+                                            : 'Read-only channel'
+                            }
+                            disabled={activeChannel === 'dm' ? false : (!currentChannel?.canSend || isSendingMessage)}
+                            className="flex-1 bg-black border-[rgba(255,193,7,0.2)] text-white placeholder:text-gray-500 focus:border-[#FFC107] rounded-xl disabled:opacity-50"
+                            style={{ height: '45px', paddingLeft: '15px', paddingRight: '15px' }}
+                        />
+
+                        <Button
+                            type="submit"
+                            disabled={!message.trim() || (activeChannel === 'dm' ? false : !currentChannel?.canSend) || isSendingMessage}
+                            className="bg-[#FFC107] hover:bg-[#FFD54F] text-black font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ width: '45px', height: '45px', padding: '0' }}
+                        >
+                            {isSendingMessage ? (
+                                <div className="animate-spin">⏳</div>
+                            ) : (
+                                <Send size={20} />
+                            )}
+                        </Button>
+                    </form>
+
+                    {/* Upload Progress Indicator */}
+                    {isUploading && (
+                        <div
+                            className="flex items-center justify-center text-[#FFC107]"
+                            style={{ marginTop: '10px', gap: '10px' }}
+                        >
+                            <div className="animate-spin rounded-full border-2 border-[#FFC107] border-t-transparent" style={{ width: '20px', height: '20px' }} />
+                            <span className="text-sm font-semibold">Uploading file...</span>
+                        </div>
+                    )}
+
+                    {!currentChannel?.canSend && (
+                        <p
+                            className="text-xs text-gray-500 text-center"
+                            style={{ marginTop: '10px' }}
+                        >
+                            🔒 Read-only channel. Only the Chief can post announcements.
+                        </p>
+                    )}
+                </div>
+            </div>
         </div >
     );
 }
