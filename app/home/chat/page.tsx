@@ -883,8 +883,8 @@ export default function ChatPage() {
             <div className="flex-shrink-0 bg-[#0a0a0a] border-b border-[rgba(255,193,7,0.2)]" style={{ padding: '15px 20px' }}>
                 <div className="max-w-6xl mx-auto">
                     <div className="flex items-center justify-between w-full" style={{ gap: '15px' }}>
-                        {/* Left: Back button when admin has selected a user (replaces menu button position) */}
-                        {activeChannel === 'dm' && isAdmin && selectedDmUser ? (
+                        {/* Left: Back button when user has selected a DM (replaces menu button position) */}
+                        {activeChannel === 'dm' && selectedDmUser ? (
                             <button
                                 onClick={() => setSelectedDmUser(null)}
                                 className="text-[#FFC107] hover:text-[#FFD54F] transition-all p-2"
@@ -961,8 +961,8 @@ export default function ChatPage() {
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto" style={{ padding: '20px' }}>
                 <div className="max-w-4xl mx-auto">
-                    {/* Admin DM: Show user selection grid */}
-                    {activeChannel === 'dm' && isAdmin && !selectedDmUser ? (
+                    {/* DM: Show user selection grid */}
+                    {activeChannel === 'dm' && !selectedDmUser ? (
                         <div>
                             <h2 className="text-2xl font-bold text-white" style={{ marginBottom: '20px' }}>
                                 Select a user to message
