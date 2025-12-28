@@ -1007,11 +1007,17 @@ export default function ChatPage() {
                                 style={{ marginBottom: '15px' }}
                             >
                                 <div
-                                    className={`max-w-[70%] rounded-xl ${msg.sender_id === currentUser?.id
+                                    className={`rounded-xl ${msg.sender_id === currentUser?.id
                                         ? 'bg-[#FFC107] text-black'
                                         : 'bg-[#1a1a1a] text-white border border-[rgba(255,193,7,0.2)]'
                                         }`}
-                                    style={{ padding: '12px 16px' }}
+                                    style={{
+                                        padding: '12px 16px',
+                                        userSelect: 'none', // Prevent text selection
+                                        WebkitUserSelect: 'none',
+                                        MozUserSelect: 'none',
+                                        msUserSelect: 'none'
+                                    }}
                                 >
                                     <p className="text-sm">{msg.content}</p>
                                     <p className="text-xs opacity-60 mt-1">
