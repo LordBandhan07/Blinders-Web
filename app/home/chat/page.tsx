@@ -478,11 +478,10 @@ export default function ChatPage() {
     useEffect(() => {
         if (activeChannel !== 'dm' || !selectedDmUser || !currentUser) return;
 
-        console.log('🔔 Setting up DM realtime subscription');
-        const channelId = [currentUser.id, selectedDmUser.id].sort().join('-');
+        console.log('🔔 Setting up DM realtime subscription (Global Mode)');
 
         const channel = supabase
-            .channel(`dm:${channelId}`)
+            .channel(`dm-global:${currentUser.id}`)
             .on(
                 'postgres_changes',
                 {
@@ -491,23 +490,53 @@ export default function ChatPage() {
                     table: 'direct_messages',
                 },
                 (payload) => {
+                    console.log('📨 Realtime Event Received:', payload);
                     const newMsg = payload.new as any;
-                    // Check if message belongs to current conversation
-                    if (
-                        (newMsg.sender_id === currentUser.id && newMsg.receiver_id === selectedDmUser.id) ||
-                        (newMsg.sender_id === selectedDmUser.id && newMsg.receiver_id === currentUser.id)
-                    ) {
-                        console.log('📨 New DM received:', newMsg);
+
+                    // Client-Side Filter: Only process messages relevant to THIS conversation
+                    const isIncoming = newMsg.sender_id === selectedDmUser.id && newMsg.receiver_id === currentUser.id;
+                    const isOutgoing = newMsg.sender_id === currentUser.id && newMsg.receiver_id === selectedDmUser.id;
+
+                    if (isIncoming || isOutgoing) {
+                        let msgWithProfile = { ...newMsg, reactions: [] };
+
+                        if (isIncoming) {
+                            console.log('✅ Processing INCOMING message');
+                            msgWithProfile.sender_name = selectedDmUser.display_name;
+                            msgWithProfile.sender_photo_url = selectedDmUser.profile_photo_url;
+
+                            // Verified: Trigger Toast
+                            toast.success(`New message from ${selectedDmUser.display_name}`, {
+                                style: { background: '#222', color: '#FFC107', border: '1px solid #FFC107' },
+                                icon: '📨'
+                            });
+                        } else {
+                            console.log('✅ Processing OUTGOING sync message');
+                            msgWithProfile.sender_name = currentUser.display_name;
+                            msgWithProfile.sender_photo_url = currentUser.profile_photo_url;
+                        }
+
                         setDmMessages((current) => {
-                            // Prevent duplicates
-                            if (current.some(msg => msg.id === newMsg.id)) return current;
-                            return [...current, newMsg];
+                            if (current.some(msg => msg.id === newMsg.id)) {
+                                console.log('⚠️ Duplicate message ignored');
+                                return current;
+                            }
+                            console.log('✅ Appending to UI');
+                            return [...current, msgWithProfile];
                         });
+                    } else {
+                        // Debug: Log ignored messages
+                        if (newMsg.receiver_id === currentUser.id || newMsg.sender_id === currentUser.id) {
+                            console.log('ℹ️ Ignored DM for other user:', newMsg.sender_id === currentUser.id ? `To ${newMsg.receiver_id}` : `From ${newMsg.sender_id}`);
+                        }
                     }
                 }
             )
             .subscribe((status) => {
-                console.log('📡 DM subscription status:', status);
+                console.log('📡 DM Subscription Status:', status);
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Successfully Subscribed to Direct Messages');
+                }
             });
 
         return () => {
