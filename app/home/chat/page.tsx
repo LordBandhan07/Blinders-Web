@@ -245,6 +245,14 @@ export default function ChatPage() {
     const [mediaPreview, setMediaPreview] = useState<{ url: string; type: 'image' | 'video' | 'voice' } | null>(null);
     const [replyingTo, setReplyingTo] = useState<Message | null>(null);
 
+    // Helper to get unique channel ID
+    const getChannelId = () => {
+        if (activeChannel === 'dm' && currentUser && selectedDmUser) {
+            return [currentUser.id, selectedDmUser.id].sort().join('-');
+        }
+        return activeChannel;
+    };
+
     // Admin DM states
     const [dmUsers, setDmUsers] = useState<UserProfile[]>([]);
     const [selectedDmUser, setSelectedDmUser] = useState<UserProfile | null>(null);
@@ -469,9 +477,10 @@ export default function ChatPage() {
         if (activeChannel !== 'dm' || !selectedDmUser || !currentUser) return;
 
         console.log('🔔 Setting up DM realtime subscription');
+        const channelId = [currentUser.id, selectedDmUser.id].sort().join('-');
 
         const channel = supabase
-            .channel(`dm:${currentUser.id}:${selectedDmUser.id}`)
+            .channel(`dm:${channelId}`)
             .on(
                 'postgres_changes',
                 {
