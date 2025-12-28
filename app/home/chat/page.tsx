@@ -96,6 +96,10 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime, handl
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                handleLongPressStart(e, msg.id);
+            }}
         >
             {/* Reply Icon (shows on swipe) */}
             {swipeX > 20 && (
@@ -1217,9 +1221,9 @@ export default function ChatPage() {
                                                 <p className="text-gray-400 text-sm">{user.email}</p>
                                             </div>
                                             <div
-                                                className={`w-3 h-3 rounded-full ${onlineUsers.has(user.id) ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
+                                                className={`w-3 h-3 rounded-full ${((currentUser && user.id === currentUser.id) || onlineUsers.has(user.id)) ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
                                                     }`}
-                                                title={onlineUsers.has(user.id) ? 'Online' : 'Offline'}
+                                                title={((currentUser && user.id === currentUser.id) || onlineUsers.has(user.id)) ? 'Online' : 'Offline'}
                                             />
                                         </div>
                                     </motion.div>
