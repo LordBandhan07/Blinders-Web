@@ -29,10 +29,11 @@ export default function PasskeyLockPage() {
 
     const handleSubmit = async () => {
         if (passkey === CORRECT_PASSKEY) {
-            // Check if user is still logged in (has auth token)
+            // Check if user is still logged in (check both cookie and localStorage for mobile)
             const authToken = document.cookie.split('; ').find(row => row.startsWith('supabase-auth-token='));
 
-            if (authToken) {
+            const storedSession = localStorage.getItem('supabase-session');
+            if (authToken || storedSession) {
                 // User still logged in - unlock and go to home
                 const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
                 const sessionData = {
