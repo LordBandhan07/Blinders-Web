@@ -303,6 +303,8 @@ export default function ChatPage() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const typingChannelRef = useRef<any>(null);
+    const sendingChannelRef = useRef<any>(null);
 
     const isAdmin = currentUser?.role === 'admin';
 
@@ -584,6 +586,8 @@ export default function ChatPage() {
             },
         });
 
+        typingChannelRef.current = typingChannel;
+
         // Subscribe to presence changes
         typingChannel
             .on('presence', { event: 'sync' }, () => {
@@ -606,36 +610,34 @@ export default function ChatPage() {
 
         return () => {
             supabase.removeChannel(typingChannel);
+            typingChannelRef.current = null;
         };
-    }, [activeChannel, currentUser]);
+    }, [activeChannel, currentUser, selectedDmUser?.id]);
 
     // Handle typing events
     const handleTyping = () => {
         if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const channelId = getChannelId();
-        const typingChannel = supabase.channel(`typing:${channelId}`);
+        if (typingChannelRef.current) {
+            // Track typing on existing channel
+            typingChannelRef.current.track({
+                user_id: currentUser.id,
+                display_name: currentUser.display_name,
+                typing: true,
+            }).catch((err: any) => console.error("Typing track error:", err));
 
-        // Track typing
-        typingChannel.track({
-            user_id: currentUser.id,
-            display_name: currentUser.display_name,
-            typing: true,
-        });
-
-        // Clear typing after 3 seconds
-        setTimeout(() => {
-            typingChannel.untrack();
-        }, 3000);
+            // Clear typing after 3 seconds
+            setTimeout(() => {
+                typingChannelRef.current?.untrack();
+            }, 3000);
+        }
     };
 
     // Clear typing immediately (when sending message)
     const clearTyping = () => {
-        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
-
-        const channelId = getChannelId();
-        const typingChannel = supabase.channel(`typing:${channelId}`);
-        typingChannel.untrack();
+        if (typingChannelRef.current) {
+            typingChannelRef.current.untrack();
+        }
     };
 
     // Sending indicator with Supabase Presence
@@ -650,6 +652,8 @@ export default function ChatPage() {
                 },
             },
         });
+
+        sendingChannelRef.current = sendingChannel;
 
         // Subscribe to sending presence changes
         sendingChannel
@@ -673,26 +677,24 @@ export default function ChatPage() {
 
         return () => {
             supabase.removeChannel(sendingChannel);
+            sendingChannelRef.current = null;
         };
-    }, [activeChannel, currentUser]);
+    }, [activeChannel, currentUser, selectedDmUser?.id]);
 
     // Handle sending events
     const broadcastSending = (isSending: boolean) => {
         if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const channelId = getChannelId();
-        const sendingChannel = supabase.channel(`sending:${channelId}`);
-
-        if (isSending) {
-            // Track sending
-            sendingChannel.track({
-                user_id: currentUser.id,
-                display_name: currentUser.display_name,
-                sending: true,
-            });
-        } else {
-            // Stop tracking
-            sendingChannel.untrack();
+        if (sendingChannelRef.current) {
+            if (isSending) {
+                sendingChannelRef.current.track({
+                    user_id: currentUser.id,
+                    display_name: currentUser.display_name,
+                    sending: true,
+                }).catch((err: any) => console.error("Sending track error:", err));
+            } else {
+                sendingChannelRef.current.untrack();
+            }
         }
     };
 
