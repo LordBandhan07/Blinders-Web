@@ -58,8 +58,8 @@ export default function PasskeyLockPage() {
 
                 router.push('/home');
             } else {
-                // User logged out (after 3 failures) - go to login
-                toast.success('✅ Correct passkey! Please login again.', {
+                // User logged out - go to login
+                toast.success('✅ Correct passkey! Please login.', {
                     style: {
                         background: '#000000',
                         color: '#FFC107',
@@ -67,7 +67,9 @@ export default function PasskeyLockPage() {
                     },
                 });
 
-                router.push('/login');
+                setTimeout(() => {
+                    router.push('/login');
+                }, 500);
             }
         } else {
             // Wrong passkey
