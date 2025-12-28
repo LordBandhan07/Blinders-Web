@@ -2,8 +2,17 @@
 -- Run this EXACTLY in Supabase Dashboard -> SQL Editor
 -- This fixes the "messages save but don't appear" issue
 
--- Step 1: Enable Realtime on the table
-ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS public.direct_messages;
+-- Step 1: Enable Realtime on the table (drop first to avoid errors)
+DO $$ 
+BEGIN
+    -- Try to drop the table from publication (ignore if not exists)
+    ALTER PUBLICATION supabase_realtime DROP TABLE public.direct_messages;
+EXCEPTION WHEN OTHERS THEN
+    NULL;
+END $$;
+
+-- Now add it
+ALTER PUBLICATION supabase_realtime ADD TABLE public.direct_messages;
 
 -- Step 2: Grant permissions
 GRANT ALL ON TABLE public.direct_messages TO authenticated;
