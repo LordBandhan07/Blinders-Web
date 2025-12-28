@@ -172,7 +172,7 @@ export default function PasskeyLockPage() {
 
                 {/* Attempts Counter - Hidden after 3 failures */}
                 {!isLoggedOut && attempts < MAX_ATTEMPTS && (
-                    <div className="text-center mb-6">
+                    <div className="text-center mb-6" style={{ marginBottom: '10px' }}>
                         <p className="text-gray-400 text-sm">
                             Attempts remaining: <span className="text-[#FFC107] font-bold">{MAX_ATTEMPTS - attempts}/{MAX_ATTEMPTS}</span>
                         </p>
