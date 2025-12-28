@@ -197,17 +197,26 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime, handl
                         <div className="flex flex-wrap gap-1 mt-2">
                             {Object.entries(
                                 msg.reactions.reduce((acc, reaction) => {
-                                    acc[reaction.emoji] = (acc[reaction.emoji] || 0) + 1;
+                                    if (!acc[reaction.emoji]) {
+                                        acc[reaction.emoji] = [];
+                                    }
+                                    acc[reaction.emoji].push(reaction);
                                     return acc;
-                                }, {} as Record<string, number>)
-                            ).map(([emoji, count]) => (
+                                }, {} as Record<string, Reaction[]>)
+                            ).map(([emoji, reactions]) => (
                                 <button
                                     key={emoji}
                                     onClick={() => handleEmojiSelect(emoji)}
-                                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-[rgba(255,193,7,0.1)] border border-[rgba(255,193,7,0.3)] hover:bg-[rgba(255,193,7,0.2)] transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1 rounded-full bg-[rgba(255,193,7,0.1)] border border-[rgba(255,193,7,0.3)] hover:bg-[rgba(255,193,7,0.2)] transition-colors relative group"
+                                    title={reactions.map(r => r.profiles?.display_name || 'Unknown').join(', ')}
                                 >
                                     <span className="text-sm">{emoji}</span>
-                                    <span className="text-xs text-[#FFC107] font-semibold">{count}</span>
+                                    <span className="text-xs text-[#FFC107] font-semibold">{reactions.length}</span>
+
+                                    {/* Tooltip */}
+                                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block bg-black border border-[#FFC107] rounded-lg px-2 py-1 text-xs text-white whitespace-nowrap z-50">
+                                        {reactions.map(r => r.profiles?.display_name || 'Unknown').join(', ')}
+                                    </div>
                                 </button>
                             ))}
                         </div>

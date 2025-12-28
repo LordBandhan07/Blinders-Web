@@ -68,16 +68,16 @@ export default function EmojiPicker({ onEmojiSelect, onClose, position }: EmojiP
                                     onEmojiSelect(emoji);
                                     onClose();
                                 }}
-                                className="text-3xl hover:scale-125 transition-transform"
-                                style={{ padding: '8px' }}
+                                className="text-2xl hover:scale-125 transition-transform"
+                                style={{ padding: '6px' }}
                             >
                                 {emoji}
                             </button>
                         ))}
                         <button
                             onClick={() => setShowAll(true)}
-                            className="text-sm text-[#FFC107] hover:text-[#FFD54F] font-semibold border border-[#FFC107] rounded-lg"
-                            style={{ padding: '8px 12px' }}
+                            className="text-xs text-[#FFC107] hover:text-[#FFD54F] font-semibold border border-[#FFC107] rounded-lg"
+                            style={{ padding: '6px 10px' }}
                         >
                             More
                         </button>
@@ -86,8 +86,8 @@ export default function EmojiPicker({ onEmojiSelect, onClose, position }: EmojiP
                     // All emojis
                     <div className="relative">
                         <div
-                            className="grid grid-cols-8 gap-2 overflow-y-auto"
-                            style={{ maxHeight: '300px', maxWidth: '400px', padding: '8px' }}
+                            className="grid grid-cols-6 gap-1 overflow-y-auto"
+                            style={{ maxHeight: '200px', maxWidth: '280px', padding: '8px' }}
                         >
                             {ALL_EMOJIS.map((emoji, index) => (
                                 <button
@@ -96,7 +96,7 @@ export default function EmojiPicker({ onEmojiSelect, onClose, position }: EmojiP
                                         onEmojiSelect(emoji);
                                         onClose();
                                     }}
-                                    className="text-2xl hover:scale-125 transition-transform"
+                                    className="text-xl hover:scale-125 transition-transform"
                                     style={{ padding: '4px' }}
                                 >
                                     {emoji}
