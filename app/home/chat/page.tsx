@@ -247,6 +247,38 @@ export default function ChatPage() {
     const [typingUsers, setTypingUsers] = useState<string[]>([]);
     const [isSendingMessage, setIsSendingMessage] = useState(false);
     const [sendingUsers, setSendingUsers] = useState<string[]>([]);
+    const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
+    // Subscribe to Global Presence
+    useEffect(() => {
+        if (!currentUser?.id) return;
+
+        const channel = supabase.channel('global_presence')
+            .on('presence', { event: 'sync' }, () => {
+                const newState = channel.presenceState();
+                const onlineIds = new Set<string>();
+
+                Object.values(newState).forEach((presences: any) => {
+                    presences.forEach((presence: any) => {
+                        if (presence.user_id) onlineIds.add(presence.user_id);
+                    });
+                });
+
+                setOnlineUsers(onlineIds);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.track({
+                        user_id: currentUser.id,
+                        online_at: new Date().toISOString()
+                    });
+                }
+            });
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [currentUser?.id]);
 
     // Emoji picker states
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -1176,7 +1208,7 @@ export default function ChatPage() {
                                                     />
                                                 ) : (
                                                     <AvatarFallback className="bg-[#FFC107] text-black font-bold">
-                                                        {user.display_name.substring(0, 2).toUpperCase()}
+                                                        {user.display_name?.substring(0, 2).toUpperCase()}
                                                     </AvatarFallback>
                                                 )}
                                             </Avatar>
@@ -1185,8 +1217,9 @@ export default function ChatPage() {
                                                 <p className="text-gray-400 text-sm">{user.email}</p>
                                             </div>
                                             <div
-                                                className={`w-3 h-3 rounded-full ${user.is_online ? 'bg-green-500' : 'bg-gray-500'
+                                                className={`w-3 h-3 rounded-full ${onlineUsers.has(user.id) ? 'bg-green-500 animate-pulse' : 'bg-gray-500'
                                                     }`}
+                                                title={onlineUsers.has(user.id) ? 'Online' : 'Offline'}
                                             />
                                         </div>
                                     </motion.div>
@@ -1195,19 +1228,29 @@ export default function ChatPage() {
                         </div>
                     ) : activeChannel === 'dm' && selectedDmUser ? (
                         // DM Messages
-                        dmMessages.map((msg, index) => (
-                            <MessageItem
-                                key={msg.id}
-                                msg={msg}
-                                index={index}
-                                currentUser={currentUser}
-                                setReplyingTo={setReplyingTo}
-                                formatTime={formatTime}
-                                handleEmojiSelect={handleEmojiSelect}
-                                handleLongPressStart={handleLongPressStart}
-                                handleLongPressEnd={handleLongPressEnd}
-                            />
-                        ))
+                        dmMessages.map((msg, index) => {
+                            // Enhance DM message with sender details
+                            const isOwn = msg.sender_id === currentUser?.id;
+                            const richMsg = {
+                                ...msg,
+                                sender_name: isOwn ? currentUser?.display_name : selectedDmUser?.display_name,
+                                sender_photo_url: isOwn ? currentUser?.profile_photo_url : selectedDmUser?.profile_photo_url
+                            };
+
+                            return (
+                                <MessageItem
+                                    key={msg.id}
+                                    msg={richMsg}
+                                    index={index}
+                                    currentUser={currentUser}
+                                    setReplyingTo={setReplyingTo}
+                                    formatTime={formatTime}
+                                    handleEmojiSelect={handleEmojiSelect}
+                                    handleLongPressStart={handleLongPressStart}
+                                    handleLongPressEnd={handleLongPressEnd}
+                                />
+                            );
+                        })
                     ) : activeChannel === 'dm' && dmMessages.length === 0 ? (
                         <motion.div
                             initial={{ opacity: 0 }}

@@ -23,79 +23,86 @@ export default function MembersPage() {
     const [members, setMembers] = useState<Member[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Fetch members and subscribe to real-time updates
-    useEffect(() => {
-        const fetchMembers = async () => {
-            try {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .order('display_name');
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
-                if (error) throw error;
-                setMembers(data || []);
+    // Fetch members and current user
+    useEffect(() => {
+        const fetchInitialData = async () => {
+            try {
+                const [membersResponse, userResponse] = await Promise.all([
+                    supabase.from('profiles').select('*').order('display_name'),
+                    supabase.auth.getUser()
+                ]);
+
+                if (membersResponse.error) throw membersResponse.error;
+                setMembers(membersResponse.data || []);
+
+                if (userResponse.data.user) {
+                    setCurrentUserId(userResponse.data.user.id);
+                }
             } catch (error) {
-                console.error('Error fetching members:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchMembers();
+        fetchInitialData();
+    }, []);
 
-        // Subscribe to real-time profile updates
-        const channel = supabase
-            .channel('profiles-realtime')
-            .on(
-                'postgres_changes',
-                {
-                    event: '*',
-                    schema: 'public',
-                    table: 'profiles',
-                },
-                (payload) => {
-                    console.log('Profile update:', payload);
+    // Subscribe to real-time updates and Presence
+    useEffect(() => {
+        if (!currentUserId) return;
 
-                    if (payload.eventType === 'UPDATE') {
-                        setMembers((current) =>
-                            current.map((member) =>
-                                member.id === payload.new.id
-                                    ? { ...member, ...payload.new }
-                                    : member
-                            )
-                        );
-                    } else if (payload.eventType === 'INSERT') {
-                        setMembers((current) => [...current, payload.new as Member]);
-                    } else if (payload.eventType === 'DELETE') {
-                        setMembers((current) =>
-                            current.filter((member) => member.id !== payload.old.id)
-                        );
-                    }
+        const channel = supabase.channel('global_presence')
+            .on('presence', { event: 'sync' }, () => {
+                const newState = channel.presenceState();
+                const onlineIds = new Set<string>();
+
+                Object.values(newState).forEach((presences: any) => {
+                    presences.forEach((presence: any) => {
+                        if (presence.user_id) onlineIds.add(presence.user_id);
+                    });
+                });
+
+                setOnlineUsers(onlineIds);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.track({
+                        user_id: currentUserId,
+                        online_at: new Date().toISOString()
+                    });
                 }
-            )
-            .subscribe();
+            });
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [currentUserId]);
 
-    // Role hierarchy for sorting (including admin/god)
+    // Role hierarchy...
     const roleOrder: Record<string, number> = {
-        'admin': 1,           // God of Blinders
-        'president': 2,       // President
-        'chief_member': 3,    // Chief Member
-        'senior_member': 4,   // Senior Member
+        'admin': 1,
+        'president': 2,
+        'chief_member': 3,
+        'senior_member': 4,
     };
 
     const filteredMembers = members
+        .map(m => ({
+            ...m,
+            is_online: onlineUsers.has(m.id)
+        }))
         .filter(
             (member) =>
                 member.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 member.email.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .sort((a, b) => {
-            // Sort by role hierarchy first
+            // Sort by online status first (optional, maybe keep role based?)
+            // Keeping Role based sorting as primary
             const roleA = roleOrder[a.role] || 999;
             const roleB = roleOrder[b.role] || 999;
 
@@ -103,11 +110,10 @@ export default function MembersPage() {
                 return roleA - roleB;
             }
 
-            // If same role, sort alphabetically by name
             return a.display_name.localeCompare(b.display_name);
         });
 
-    const onlineCount = members.filter(m => m.is_online).length;
+    const onlineCount = filteredMembers.filter(m => m.is_online).length;
     const totalCount = members.length;
 
     return (
