@@ -563,24 +563,10 @@ export default function ChatPage() {
         setReplyingTo(null); // Clear reply
 
         try {
-            // For admin channel, send as DM
+            // For DM channel, send to selected user
             if (activeChannel === 'dm') {
-                let receiverId;
-
-                if (isAdmin && selectedDmUser) {
-                    receiverId = selectedDmUser.id;
-                } else if (!isAdmin) {
-                    // Regular user sending to admin
-                    const { data: adminData } = await supabase
-                        .from('profiles')
-                        .select('id')
-                        .eq('role', 'admin')
-                        .single();
-                    receiverId = adminData?.id;
-                }
-
-                if (!receiverId) {
-                    throw new Error('No receiver found');
+                if (!selectedDmUser) {
+                    throw new Error('No user selected');
                 }
 
                 const response = await fetch('/api/dm', {
@@ -588,7 +574,7 @@ export default function ChatPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         sender_id: currentUser.id,
-                        receiver_id: receiverId,
+                        receiver_id: selectedDmUser.id,
                         content: messageContent,
                         type: messageType,
                         media_url: mediaUrl,
