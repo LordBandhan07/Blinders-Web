@@ -72,15 +72,6 @@ export default function HomeLayout({ children }: LayoutProps) {
         fetchUserProfile();
     }, []);
 
-    const handleLogout = async () => {
-        try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            toast.success('Logged out successfully');
-            router.push('/login');
-        } catch (error) {
-            toast.error('Logout failed');
-        }
-    };
 
     const navItems = [
         { id: 'home', label: 'Home', icon: Home, href: '/home' },
@@ -184,22 +175,6 @@ export default function HomeLayout({ children }: LayoutProps) {
                 </div>
             </nav>
 
-            {/* LOGOUT - PRECISE SPACING */}
-            <div className="border-t border-[rgba(255,193,7,0.2)]" style={{ padding: '20px 15px' }}>
-                <Button
-                    variant="outline"
-                    className="w-full justify-start text-lg font-bold border-2 border-[rgba(255,193,7,0.3)] hover:bg-[rgba(255,193,7,0.1)] hover:text-white hover:border-[#FFC107] text-gray-300"
-                    onClick={handleLogout}
-                    style={{
-                        padding: '15px 20px',
-                        gap: '15px',
-                        height: '60px'
-                    }}
-                >
-                    <LogOut size={26} strokeWidth={2.5} />
-                    <span>Logout</span>
-                </Button>
-            </div>
         </>
     );
 
