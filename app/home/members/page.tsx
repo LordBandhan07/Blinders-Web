@@ -93,7 +93,7 @@ export default function MembersPage() {
     const filteredMembers = members
         .map(m => ({
             ...m,
-            is_online: onlineUsers.has(m.id)
+            is_online: (currentUserId && m.id === currentUserId) || onlineUsers.has(m.id)
         }))
         .filter(
             (member) =>
