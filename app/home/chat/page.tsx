@@ -247,7 +247,7 @@ export default function ChatPage() {
 
     // Fetch users for admin DM when admin channel is selected
     useEffect(() => {
-        if (activeChannel === 'dm' && isAdmin) {
+        if (activeChannel === 'dm') {
             const fetchUsers = async () => {
                 try {
                     const { data, error } = await supabase
@@ -281,7 +281,7 @@ export default function ChatPage() {
             setDmUsers([]);
             setSelectedDmUser(null);
         }
-    }, [activeChannel, isAdmin]);
+    }, [activeChannel]);
 
     // Fetch messages for active channel
     useEffect(() => {
