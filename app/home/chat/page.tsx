@@ -245,9 +245,9 @@ export default function ChatPage() {
         fetchUser();
     }, []);
 
-    // Fetch users for admin DM when admin channel is selected
+    // Fetch users for DM when Single Chat channel is selected
     useEffect(() => {
-        if (activeChannel === 'dm') {
+        if (activeChannel === 'dm' && currentUser) {
             const fetchUsers = async () => {
                 try {
                     const { data, error } = await supabase
@@ -274,39 +274,19 @@ export default function ChatPage() {
     useEffect(() => {
         const fetchMessages = async () => {
             try {
-                // For admin channel, fetch DMs instead of channel messages
+                // For DM channel, fetch messages with selected user
                 if (activeChannel === 'dm') {
-                    if (!currentUser) return;
+                    if (!currentUser || !selectedDmUser) return;
 
-                    // For regular users, fetch DMs with admin
-                    // For admin with selected user, fetch DMs with that user
-                    if (isAdmin && selectedDmUser) {
-                        const response = await fetch(
-                            `/api/dm?userId=${currentUser.id}&otherUserId=${selectedDmUser.id}`
-                        );
-                        if (response.ok) {
-                            const data = await response.json();
-                            setDmMessages(data.messages || []);
-                        }
-                    } else if (!isAdmin) {
-                        // Regular user: fetch DMs with admin
-                        // First, find admin user
-                        const { data: adminData } = await supabase
-                            .from('profiles')
-                            .select('id')
-                            .eq('role', 'admin')
-                            .single();
+                    const response = await fetch(
+                        `/api/dm?userId=${currentUser.id}&otherUserId=${selectedDmUser.id}`
+                    );
 
-                        if (adminData) {
-                            const response = await fetch(
-                                `/api/dm?userId=${currentUser.id}&otherUserId=${adminData.id}`
-                            );
-                            if (response.ok) {
-                                const data = await response.json();
-                                setDmMessages(data.messages || []);
-                            }
-                        }
+                    if (response.ok) {
+                        const data = await response.json();
+                        setDmMessages(data.messages || []);
                     }
+
                     setMessages([]); // Clear regular messages
                 } else {
                     // Regular channel messages with sender profile photos
@@ -345,7 +325,7 @@ export default function ChatPage() {
         };
 
         fetchMessages();
-    }, [activeChannel]);
+    }, [activeChannel, selectedDmUser?.id]);
 
     // Subscribe to real-time messages
     useEffect(() => {
@@ -585,9 +565,14 @@ export default function ChatPage() {
                     throw new Error('Failed to send message');
                 }
 
-                // Add message to local state immediately
-                const { message: newMsg } = await response.json();
-                setDmMessages((current) => [...current, newMsg]);
+                // Fetch updated messages
+                const refreshResponse = await fetch(
+                    `/api/dm?userId=${currentUser.id}&otherUserId=${selectedDmUser.id}`
+                );
+                if (refreshResponse.ok) {
+                    const data = await refreshResponse.json();
+                    setDmMessages(data.messages || []);
+                }
             } else {
                 // Regular channel message
                 const response = await fetch('/api/messages', {
