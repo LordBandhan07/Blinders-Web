@@ -268,7 +268,7 @@ export default function ChatPage() {
             setDmUsers([]);
             setSelectedDmUser(null);
         }
-    }, [activeChannel, currentUser]);
+    }, [activeChannel, currentUser?.id]);
 
     // Fetch messages for active channel
     useEffect(() => {
