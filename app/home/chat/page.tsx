@@ -65,6 +65,7 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime, handl
 
     const handleTouchStart = (e: React.TouchEvent) => {
         setTouchStart(e.touches[0].clientX);
+        handleLongPressStart(e, msg.id);
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
@@ -83,6 +84,7 @@ function MessageItem({ msg, index, currentUser, setReplyingTo, formatTime, handl
             setReplyingTo(msg);
         }
         setSwipeX(0);
+        handleLongPressEnd();
     };
 
     return (
