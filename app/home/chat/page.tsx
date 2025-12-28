@@ -573,9 +573,10 @@ export default function ChatPage() {
 
     // Typing indicator with Supabase Presence
     useEffect(() => {
-        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
+        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const typingChannel = supabase.channel(`typing:${activeChannel}`, {
+        const channelId = getChannelId();
+        const typingChannel = supabase.channel(`typing:${channelId}`, {
             config: {
                 presence: {
                     key: currentUser.id,
@@ -610,9 +611,10 @@ export default function ChatPage() {
 
     // Handle typing events
     const handleTyping = () => {
-        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
+        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const typingChannel = supabase.channel(`typing:${activeChannel}`);
+        const channelId = getChannelId();
+        const typingChannel = supabase.channel(`typing:${channelId}`);
 
         // Track typing
         typingChannel.track({
@@ -629,17 +631,19 @@ export default function ChatPage() {
 
     // Clear typing immediately (when sending message)
     const clearTyping = () => {
-        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
+        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const typingChannel = supabase.channel(`typing:${activeChannel}`);
+        const channelId = getChannelId();
+        const typingChannel = supabase.channel(`typing:${channelId}`);
         typingChannel.untrack();
     };
 
     // Sending indicator with Supabase Presence
     useEffect(() => {
-        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
+        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const sendingChannel = supabase.channel(`sending:${activeChannel}`, {
+        const channelId = getChannelId();
+        const sendingChannel = supabase.channel(`sending:${channelId}`, {
             config: {
                 presence: {
                     key: currentUser.id,
@@ -674,9 +678,10 @@ export default function ChatPage() {
 
     // Handle sending events
     const broadcastSending = (isSending: boolean) => {
-        if (!activeChannel || activeChannel === 'dm' || !currentUser) return;
+        if (!activeChannel || (activeChannel === 'dm' && !selectedDmUser) || !currentUser) return;
 
-        const sendingChannel = supabase.channel(`sending:${activeChannel}`);
+        const channelId = getChannelId();
+        const sendingChannel = supabase.channel(`sending:${channelId}`);
 
         if (isSending) {
             // Track sending
