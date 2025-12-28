@@ -258,7 +258,7 @@ export default function ChatPage() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const isAdmin = currentUser?.role === 'dm';
+    const isAdmin = currentUser?.role === 'admin';
 
     // Admin channels
     const adminChannels = [
@@ -382,13 +382,18 @@ export default function ChatPage() {
 
         // Fetch reactions for messages
         const fetchReactions = async () => {
-            if (activeChannel === 'dm' || !messages.length) return;
+            const isDm = activeChannel === 'dm';
+            const targetMessages = isDm ? dmMessages : messages;
+
+            if (!targetMessages.length) return;
 
             try {
-                const messageIds = messages.map(m => m.id);
+                const messageIds = targetMessages.map(m => m.id);
+                const tableName = isDm ? 'dm_reactions' : 'message_reactions';
+
                 // Fetch reactions for all messages
                 const { data: reactions } = await supabase
-                    .from('message_reactions')
+                    .from(tableName)
                     .select(`
                         *,
                         profiles:user_id (
@@ -400,21 +405,26 @@ export default function ChatPage() {
 
                 if (reactions) {
                     // Group reactions by message
-                    const updatedMessages = messages.map(msg => ({
+                    const updatedMessages = targetMessages.map(msg => ({
                         ...msg,
                         reactions: reactions.filter(r => r.message_id === msg.id)
                     }));
-                    setMessages(updatedMessages);
+
+                    if (isDm) {
+                        setDmMessages(updatedMessages);
+                    } else {
+                        setMessages(updatedMessages);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to fetch reactions:', error);
             }
         };
 
-        if (messages.length > 0) {
+        if (messages.length > 0 || dmMessages.length > 0) {
             fetchReactions();
         }
-    }, [activeChannel, selectedDmUser?.id]);
+    }, [activeChannel, selectedDmUser?.id, messages.length, dmMessages.length]);
 
     // Realtime subscription for DM messages
     useEffect(() => {
@@ -758,7 +768,22 @@ export default function ChatPage() {
     const audioChunksRef = useRef<Blob[]>([]);
 
     const handleVoiceRecord = async () => {
-        if (!currentChannel?.canSend) return;
+        if (!currentChannel?.canSend) {
+            toast.error('You cannot send voice messages here');
+            return;
+        }
+
+        // Check if environment supports recording
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            toast.error('Microphone not supported in this browser or context (requires HTTPS)', {
+                style: {
+                    background: '#000000',
+                    color: '#ffffff',
+                    border: '1px solid #FFC107',
+                },
+            });
+            return;
+        }
 
         if (isRecording) {
             // Stop recording
@@ -1170,41 +1195,18 @@ export default function ChatPage() {
                         </div>
                     ) : activeChannel === 'dm' && selectedDmUser ? (
                         // DM Messages
-                        dmMessages.map((msg) => (
-                            <motion.div
+                        dmMessages.map((msg, index) => (
+                            <MessageItem
                                 key={msg.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`flex ${msg.sender_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}
-                                style={{ marginBottom: '15px' }}
-                            >
-                                <div
-                                    className={`rounded-xl ${msg.sender_id === currentUser?.id
-                                        ? 'bg-[#FFC107] text-black'
-                                        : 'bg-[#1a1a1a] text-white border border-[rgba(255,193,7,0.2)]'
-                                        }`}
-                                    style={{
-                                        padding: '12px 16px',
-                                        userSelect: 'none', // Prevent text selection
-                                        WebkitUserSelect: 'none',
-                                        MozUserSelect: 'none',
-                                        msUserSelect: 'none'
-                                    }}
-                                    onTouchStart={(e) => handleLongPressStart(e, msg.id)}
-                                    onTouchEnd={handleLongPressEnd}
-                                    onMouseDown={(e) => handleLongPressStart(e, msg.id)}
-                                    onMouseUp={handleLongPressEnd}
-                                    onMouseLeave={handleLongPressEnd}
-                                >
-                                    <p className="text-sm">{msg.content}</p>
-                                    <p className="text-xs opacity-60 mt-1">
-                                        {new Date(msg.created_at).toLocaleTimeString('en-US', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
-                                    </p>
-                                </div>
-                            </motion.div>
+                                msg={msg}
+                                index={index}
+                                currentUser={currentUser}
+                                setReplyingTo={setReplyingTo}
+                                formatTime={formatTime}
+                                handleEmojiSelect={handleEmojiSelect}
+                                handleLongPressStart={handleLongPressStart}
+                                handleLongPressEnd={handleLongPressEnd}
+                            />
                         ))
                     ) : activeChannel === 'dm' && dmMessages.length === 0 ? (
                         <motion.div
