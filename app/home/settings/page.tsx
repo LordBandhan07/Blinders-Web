@@ -551,7 +551,7 @@ export default function SettingsPage() {
                     transition={{ delay: 0.4 }}
                     style={{ marginBottom: '40px' }}
                 >
-                    <Card className="bg-[#0a0a0a] border-red-900/30 hover:border-red-500/50 transition-colors">
+                    <Card className="bg-[#0a0a0a] border-red-900/30 hover:border-red-500/50 transition-colors" style={{ marginTop: '30px' }}>
                         <div style={{ padding: '25px' }}>
                             <div className="flex items-center" style={{ gap: '10px', marginBottom: '8px' }}>
                                 <LogOut className="text-red-500" size={24} />

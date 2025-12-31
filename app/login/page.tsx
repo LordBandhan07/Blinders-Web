@@ -123,7 +123,7 @@ export default function LoginPage() {
                             <img
                                 src="/favicon.ico"
                                 alt="Blinders Logo"
-                                className="w-80 h-80"
+                                className="w-70 h-70"
                                 style={{
                                     filter: 'invert(20%) sepia(85%) saturate(1352%) hue-rotate(359deg) brightness(102%) contrast(101%)',
                                 }}
@@ -151,18 +151,18 @@ export default function LoginPage() {
                         <form onSubmit={handleLogin} className="space-y-10">
                             {/* Blinders ID Input */}
                             <div className="space-y-6">
-                                <div className="flex items-center gap-2 text-white mb-4" style={{ marginBottom: '7px', marginLeft: '6px', marginTop: '7px' }}>
+                                <div className="flex items-center gap-2 text-white mb-4" style={{ marginBottom: '12px', marginLeft: '15px', marginTop: '12px' }}>
                                     <Shield className="w-6 h-6 text-[#FFC107]" />
                                     <label className="text-lg font-medium">Blinders ID</label>
                                 </div>
-                                <div className="relative" style={{ marginBottom: '7px', marginLeft: '6px', marginRight: '6px' }}>
+                                <div className="relative" style={{ marginBottom: '7px', marginLeft: '16px', marginRight: '16px' }}>
                                     <Input
                                         type="text"
                                         placeholder="Enter your Blinders ID"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
-                                        className="h-15 bg-black/50 border border-[rgba(255,193,7,0.2)] text-white focus:border-[#FFC107] focus:ring-1 focus:ring-[#FFC107] rounded-2xl px-6 py-6 transition-all duration-300 text-lg"
+                                        className="h-15 bg-black/50 border border-[rgba(255,193,7,0.2)] text-white focus:border-[#FFC107] focus:ring-1 focus:ring-[#FFC107] rounded-2xl px-6 py-6 transition-all duration-300 text-5xl"
                                         style={{ paddingLeft: '10px' }}
                                     />
                                 </div>
@@ -170,11 +170,11 @@ export default function LoginPage() {
 
                             {/* Password Input */}
                             <div className="space-y-6">
-                                <div className="flex items-center gap-2 text-white mb-4" style={{ marginBottom: '7px', marginLeft: '6px', marginTop: '7px' }}>
+                                <div className="flex items-center gap-2 text-white mb-4" style={{ marginBottom: '12px', marginLeft: '16px', marginTop: '12px' }}>
                                     <Lock className="w-6 h-6 text-[#FFC107]" />
                                     <label className="text-lg font-medium">Password</label>
                                 </div>
-                                <div className="relative" style={{ marginBottom: '7px', marginLeft: '6px', marginRight: '6px' }}>
+                                <div className="relative" style={{ marginBottom: '7px', marginLeft: '16px', marginRight: '16px' }}>
                                     <Input
                                         type={showPassword ? 'text' : 'password'}
                                         placeholder="Enter your password"
@@ -195,42 +195,43 @@ export default function LoginPage() {
                             </div>
 
                             {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                disabled={isLoading}
-                                className="h-15 w-108 bg-gradient-to-r from-[#FFC107] to-[#FFD54F] hover:from-[#FFD54F] hover:to-[#FFC107] text-black font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-[#FFC107]/20 flex items-center justify-center text-lg"
-                                style={{ marginBottom: '15px', marginTop: '15px', marginLeft: '7px', marginRight: '7px' }}
-                            >
-                                <AnimatePresence mode="wait">
-                                    {isLoading ? (
-                                        <motion.div
-                                            key="loading"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            className="flex items-center gap-4"
-                                        >
+                            <div style={{ marginLeft: '16px', marginRight: '16px' }}>
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="h-15 w-full bg-gradient-to-r from-[#FFC107] to-[#FFD54F] hover:from-[#FFD54F] hover:to-[#FFC107] text-black font-bold rounded-2xl transition-all duration-300 shadow-lg shadow-[#FFC107]/20 flex items-center justify-center text-lg"
+                                >
+                                    <AnimatePresence mode="wait">
+                                        {isLoading ? (
                                             <motion.div
-                                                animate={{ rotate: 360 }}
-                                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                                className="w-8 h-8 border-2 border-black border-t-transparent rounded-full"
-                                            />
-                                            <span>Authenticating...</span>
-                                        </motion.div>
-                                    ) : (
-                                        <motion.div
-                                            key="submit"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            className="flex items-center justify-center gap-4"
-                                        >
-                                            <Fingerprint className="w-8 h-8" />
-                                            <span>Access Securely</span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </Button>
+                                                key="loading"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="flex items-center gap-4"
+                                            >
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                                    className="w-8 h-8 border-2 border-black border-t-transparent rounded-full"
+                                                />
+                                                <span>Authenticating...</span>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="submit"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="flex items-center justify-center gap-4"
+                                            >
+                                                <Fingerprint className="w-8 h-8" />
+                                                <span>Access Securely</span>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </Button>
+                            </div>
                         </form>
 
                         {/* Security Badge */}
@@ -259,6 +260,6 @@ export default function LoginPage() {
                     </motion.div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
