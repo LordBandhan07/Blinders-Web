@@ -51,33 +51,82 @@ export default function MembersPage() {
         fetchInitialData();
     }, []);
 
-    // Subscribe to real-time updates and Presence
+    // Subscribe to real-time presence with heartbeat
     useEffect(() => {
         if (!currentUserId) return;
 
-        const channel = supabase.channel('global_presence')
+        console.log('🔔 Setting up presence tracking for user:', currentUserId);
+
+        const channel = supabase.channel('global_presence', {
+            config: {
+                presence: {
+                    key: currentUserId,
+                },
+            },
+        });
+
+        // Track presence state changes
+        channel
             .on('presence', { event: 'sync' }, () => {
-                const newState = channel.presenceState();
+                const state = channel.presenceState();
                 const onlineIds = new Set<string>();
 
-                Object.values(newState).forEach((presences: any) => {
-                    presences.forEach((presence: any) => {
-                        if (presence.user_id) onlineIds.add(presence.user_id);
-                    });
+                console.log('📊 Presence sync:', state);
+
+                Object.keys(state).forEach((userId) => {
+                    onlineIds.add(userId);
                 });
 
+                // Always include current user as online
+                onlineIds.add(currentUserId);
+
+                console.log('✅ Online users:', Array.from(onlineIds));
                 setOnlineUsers(onlineIds);
             })
+            .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                console.log('👋 User joined:', key);
+                setOnlineUsers(prev => new Set([...prev, key]));
+            })
+            .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+                console.log('👋 User left:', key);
+                setOnlineUsers(prev => {
+                    const updated = new Set(prev);
+                    updated.delete(key);
+                    // Keep current user always online
+                    updated.add(currentUserId);
+                    return updated;
+                });
+            })
             .subscribe(async (status) => {
+                console.log('📡 Presence subscription status:', status);
+
                 if (status === 'SUBSCRIBED') {
+                    // Track current user's presence
                     await channel.track({
                         user_id: currentUserId,
-                        online_at: new Date().toISOString()
+                        online_at: new Date().toISOString(),
                     });
+                    console.log('✅ Presence tracked for:', currentUserId);
                 }
             });
 
+        // Heartbeat to keep presence alive
+        const heartbeat = setInterval(async () => {
+            try {
+                await channel.track({
+                    user_id: currentUserId,
+                    online_at: new Date().toISOString(),
+                });
+                console.log('💓 Heartbeat sent');
+            } catch (error) {
+                console.error('❌ Heartbeat failed:', error);
+            }
+        }, 30000); // Every 30 seconds
+
         return () => {
+            console.log('🔕 Cleaning up presence');
+            clearInterval(heartbeat);
+            channel.untrack();
             supabase.removeChannel(channel);
         };
     }, [currentUserId]);
