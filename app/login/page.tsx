@@ -195,7 +195,7 @@ export default function LoginPage() {
                             </div>
 
                             {/* Submit Button */}
-                            <div style={{ marginLeft: '16px', marginRight: '16px' }}>
+                            <div style={{ marginLeft: '16px', marginRight: '16px', marginTop: '12px', marginBottom: '12px' }}>
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
