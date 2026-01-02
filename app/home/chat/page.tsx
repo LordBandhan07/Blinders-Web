@@ -394,7 +394,7 @@ export default function ChatPage() {
                         .from('messages')
                         .select(`
                             *,
-                            profiles!messages_sender_id_fkey (
+                            profiles:sender_id (
                                 profile_photo_url
                             )
                         `)
