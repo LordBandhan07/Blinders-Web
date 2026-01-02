@@ -232,19 +232,8 @@ GRANT SELECT ON public.profiles TO anon;
 -- 7. ENABLE REALTIME
 -- ============================================
 
--- Remove tables from publication first (to avoid errors)
-DO $$ 
-BEGIN
-    ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.profiles;
-    ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.messages;
-    ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.direct_messages;
-    ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.message_reactions;
-    ALTER PUBLICATION supabase_realtime DROP TABLE IF EXISTS public.dm_reactions;
-EXCEPTION WHEN OTHERS THEN
-    NULL;
-END $$;
-
 -- Add tables to Realtime publication
+-- Note: If tables are already in publication, this will error - that's OK, just continue
 ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.direct_messages;
